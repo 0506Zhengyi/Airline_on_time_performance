@@ -95,11 +95,11 @@ ggarrange(
 ```
 
 ```{r, include=FALSE}
-airline <- read.csv("C:/Users/20961/Desktop/2008.csv")
+df <- read.csv("C:/Users/20961/Desktop/2008.csv")
 ```
 
 ```{r}
-plot_missing_pattern(airline)
+plot_missing_pattern(df)
 ```
 
 Based on the plot presented above, the columns/features CarrierDelay, WeatherDelay, NASDelay, SecurityDelay, and LateAircraftDelay have the most number of rows in missing value. They describe a delay in minutes due to a specific reason. For example, WeatherDelay equals 5 means the delay caused by extreme weather conditions is 5 minutes. These five features have missing values above 1500000 rows. In addition, the other 8 features including ArrTime (actual arrival time), ActualElapsedTime, AirTime, etc. also have some missing values but less than 100000 rows.
