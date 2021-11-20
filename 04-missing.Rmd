@@ -8,7 +8,6 @@ library(ggpubr)
 library(egg)
 ```
 
-
 ```{r, include=FALSE}
 plot_missing_pattern = function(mycars, show_percentage=FALSE){
 # a tibble with each row: <var> <missing_count>, sorted desc
