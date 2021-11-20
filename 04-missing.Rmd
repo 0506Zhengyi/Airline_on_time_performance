@@ -1,1 +1,108 @@
 # Missing values
+
+```{r, include=FALSE}
+library(tidyverse)
+library(patchwork)
+library(janitor)
+library(ggpubr)
+library(egg)
+```
+
+
+```{r, include=FALSE}
+plot_missing_pattern = function(mycars, show_percentage=FALSE){
+# a tibble with each row: <var> <missing_count>, sorted desc
+  if (show_percentage) {
+    missing_patterns_by_column <- mycars %>%
+      summarise_all(list(~ sum(is.na(.))/dim(mycars)[1])) %>%
+      pivot_longer(names(mycars)) %>%
+      arrange(desc(value))
+    STRING1 = "% rows"
+    
+  } else {
+    missing_patterns_by_column <- mycars %>%
+      summarise_all(list(~ sum(is.na(.)))) %>%
+      pivot_longer(names(mycars)) %>%
+      arrange(desc(value))
+    STRING1 = "num rows missing:"
+  }
+
+# save a copy of descend column names for future use
+descend_column_names <- missing_patterns_by_column$name
+
+column_missing_bar_chart <- ggplot(
+  missing_patterns_by_column,
+  aes(x=factor(name, levels=descend_column_names), y=value))+
+  geom_bar(stat='identity', fill='#86A6EF') +
+  ylab(STRING1) + xlab('') +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+# the starting code, grouped by column, count missing, and add a total column
+missing_patterns <- data.frame(is.na(mycars)) %>%
+  group_by_all() %>%
+  count(name = "count", sort = TRUE) %>%
+  ungroup()
+
+# find out the row with all FALSEs
+missing_patterns_plot <- missing_patterns %>% mutate_all((as.integer)) %>% mutate(
+  num.of.missing = rowSums(.[1:dim(mycars)[2]]), id=row.names(.)) %>%
+  mutate(alpha=ifelse(num.of.missing==0, 1, 0.5))
+complete_row <- missing_patterns_plot  %>% filter(num.of.missing == 0) %>% select(id) %>% as.character()
+
+order_level <- sort(as.numeric(unique(missing_patterns_plot$id)))
+missing_patterns_plot$id <- factor(missing_patterns_plot$id, levels = order_level)
+
+row_missing_bar_chart <- missing_patterns_plot %>%
+  ggplot(aes(y=fct_rev(id), x=count)) +
+  geom_bar(stat='identity', fill='#86A6EF', aes(alpha=factor(alpha))) +
+  xlab(STRING1) + ylab('') +
+  theme(legend.position = "none") + 
+  scale_alpha_manual(values = c("0.5"=0.5, "1"=1),guide="none") + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+
+main_plot_df <- data.frame(is.na(mycars)) %>%
+  group_by_all() %>%
+  count(name = "count", sort = TRUE) %>%
+  ungroup() %>%
+  rownames_to_column("id") %>%
+  select(-count) %>%
+  gather(key, value, -id) %>%
+  mutate(id = as.factor(id), missing = ifelse(value=="TRUE", "1","0"), key = factor(key, levels = c(descend_column_names)))
+
+order_level <- sort(as.numeric(unique(main_plot_df$id)))
+main_plot_df$id <- factor(main_plot_df$id, levels = order_level)
+
+main_plot <- ggplot(main_plot_df) + geom_tile(aes(x = key, y = fct_rev(id), fill=missing), color = "white") + 
+  scale_fill_manual(values=c("1"="#A689E0", "0"="white")) +
+  annotate(geom="text", x=descend_column_names[round(dim(mycars)[2]/2)], y=complete_row, label="complete cases") +
+  theme(legend.position="none") +
+  xlab("variable") +
+  ylab("Missing pattern") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+
+# a pure ggplot2 with white background
+null.plot <- ggplot() + theme_minimal()
+ggarrange(
+  column_missing_bar_chart,
+  null.plot,
+  main_plot,
+  row_missing_bar_chart,
+  ncol=2,nrow=2,widths = c(20,5),heights=c(4,10),
+  top="Missing value patterns"
+)
+}
+```
+
+```{r, include=FALSE}
+airline <- read.csv("C:/Users/20961/Desktop/2008.csv")
+```
+
+```{r}
+plot_missing_pattern(airline)
+```
+
+Based on the plot presented above, the columns/features CarrierDelay, WeatherDelay, NASDelay, SecurityDelay, and LateAircraftDelay have the most number of rows in missing value. They describe a delay in minutes due to a specific reason. For example, WeatherDelay equals 5 means the delay caused by extreme weather conditions is 5 minutes. These five features have missing values above 1500000 rows. In addition, the other 8 features including ArrTime (actual arrival time), ActualElapsedTime, AirTime, etc. also have some missing values but less than 100000 rows.
+
+There are six missing patterns in our dataset and the most common one (more than 1500000 rows) is missing CarrierDelay, WeatherDelay, NASDelay, SecurityDelay, and LateAircraftDelay altogether. This pattern is most common maybe there is no delay in most flights or the reason is unknown. The pattern ranked second is complete cases. The third pattern is missing all of the features in the first pattern plus ArrTime, ActualElapsedTime, AirTime, ArrDelay, Taxiln, DepTime, DepDelay, and TaxiOut. This may be caused by the cancellation. Thus, we have no information regarding the delay, departure, arrival, etc. The other three patterns share most features with pattern 3 but there are slight differences. Since the number of missing values is much fewer than the first three, we will not discuss them in detail.
