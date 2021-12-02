@@ -10,3 +10,5 @@ In our group, both members are responsible for collecting the data from the orig
 
 There are 2,389,217 records and 29 variables in our final dataset. The dataset variable descriptions and types of variables are listed below:
 
+
+<img width="513" alt="II Dataset Variables" src="https://user-images.githubusercontent.com/93730695/144339648-31acd6d3-9c62-455f-b51e-97c49c86122c.png">
