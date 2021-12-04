@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyu Song, Zhengyi Fang" />
 
 
-<meta name="date" content="2021-11-20" />
+<meta name="date" content="2021-12-05" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -101,7 +101,7 @@
             <section class="normal" id="section-">
 <div id="missing-values" class="section level1" number="4">
 <h1><span class="header-section-number">Chapter 4</span> Missing values</h1>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>(draft)</p>
 <p>Based on the plot presented above, the columns/features CarrierDelay, WeatherDelay, NASDelay, SecurityDelay, and LateAircraftDelay have the most number of rows in missing value. They describe a delay in minutes due to a specific reason. For example, WeatherDelay equals 5 means the delay caused by extreme weather conditions is 5 minutes. These five features have missing values above 1500000 rows. In addition, the other 8 features including ArrTime (actual arrival time), ActualElapsedTime, AirTime, etc. also have some missing values but less than 100000 rows.</p>
 <p>There are six missing patterns in our dataset and the most common one (more than 1500000 rows) is missing CarrierDelay, WeatherDelay, NASDelay, SecurityDelay, and LateAircraftDelay altogether. This pattern is most common maybe there is no delay in most flights or the reason is unknown. The pattern ranked second is complete cases. The third pattern is missing all of the features in the first pattern plus ArrTime, ActualElapsedTime, AirTime, ArrDelay, Taxiln, DepTime, DepDelay, and TaxiOut. This may be caused by the cancellation. Thus, we have no information regarding the delay, departure, arrival, etc. The other three patterns share most features with pattern 3 but there are slight differences. Since the number of missing values is much fewer than the first three, we will not discuss them in detail.</p>

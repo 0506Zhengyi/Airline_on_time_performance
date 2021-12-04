@@ -1,1 +1,255 @@
 # Data transformation
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+```{r, include=FALSE}
+df <- read.csv("C:/Users/20961/Desktop/2008.csv")
+```
+
+```{r, include=FALSE}
+unique(df$CancellationCode)
+```
+```{r, include=FALSE}
+#change blank cell to NA
+df <- df %>% 
+  mutate_all(na_if,"")
+```
+
+```{r, include=FALSE}
+class(df$DepTime)
+df <- df %>%
+  mutate(DepHour = floor(df$DepTime/100),
+         ArrHour = floor(df$DepTime/100))
+```
+
+```{r, include=FALSE}
+df <- df %>%
+  mutate(Origin_state = case_when(
+    Origin == "BHM"|Origin == "DHM"|Origin == "HSV"|Origin == "MOB"|Origin == "MGM" ~ "AL",
+    
+    Origin == "ANC"|Origin == "FAI"|Origin == "JNU" ~ "AK",
+    
+    Origin == "FLG"|Origin == "PHX"|Origin == "TUS"|Origin == "YUM" ~ "AZ",
+    
+    Origin == "FYV"|Origin == "LIT" ~ "AR",
+    
+    Origin == "BUR"|Origin == "FAT"|Origin == "LGB"|Origin == "LAX"|Origin == "OAK"|Origin == "ONT"|Origin == "PSP"|Origin == "SMF"|Origin == "SAN"|Origin == "SFO"|Origin == "SJC"|Origin == "SNA" ~ "CA",
+    
+    Origin == "ASE"|Origin == "COS"|Origin == "DEN"|Origin == "GJT"|Origin == "PUB" ~ "CO",
+    
+    Origin == "BDL" ~ "CT",
+    
+    Origin == "IAD"|Origin == "DCA" ~ "DC",
+    
+    Origin == "DAB"|Origin == "FLL"|Origin == "RSW"|Origin == "JAX"|Origin == "MIA"|Origin == "MCO"|Origin == "PNS"|Origin == "PIE"|Origin == "SRQ"|Origin == "TPA"|Origin == "PBI"|Origin == "PFN" ~ "FL",
+    
+    Origin == "ATL"|Origin == "AGS"|Origin == "SAV" ~ "GA",
+    
+    Origin == "ITO"|Origin == "HNL"|Origin == "OGG"|Origin == "KOA"|Origin == "LIH" ~ "HI",
+    
+    Origin == "BOI" ~ "ID",
+    
+    Origin == "MDW"|Origin == "ORD"|Origin == "MLI"|Origin == "PIA" ~ "IL",
+    
+    Origin == "EVV"|Origin == "FWA"|Origin == "IND"|Origin == "SBN" ~ "IN",
+    
+    Origin == "CID"|Origin == "DSM" ~ "IA",
+    
+    Origin == "ICT" ~ "KS",
+    
+    Origin == "LEX"|Origin == "SDF" ~ "KY",
+    
+    Origin == "BTR"|Origin == "MSY"|Origin == "SHV" ~ "LA",
+    
+    Origin == "AUG"|Origin == "BGR"|Origin == "PWM" ~ "ME",
+    
+    Origin == "BWI" ~ "MD",
+    
+    Origin == "BOS"|Origin == "HYA"|Origin == "ACK"|Origin == "ORH" ~ "MA",
+    
+    Origin == "BTL"|Origin == "DTW"|Origin == "DET"|Origin == "FNT"|Origin == "GRR"|Origin == "AZO"|Origin == "LAN"|Origin == "MBS" ~ "MI",
+    
+    Origin == "DLH"|Origin == "MSP"|Origin == "RST" ~ "MN",
+    
+    Origin == "GPT"|Origin == "JAN" ~ "MS",
+    
+    Origin == "MCI"|Origin == "STL"|Origin == "SGF" ~ "MO",
+    
+    Origin == "BIL" ~ "MT",
+    
+    Origin == "LNK"|Origin == "OMA" ~ "NE",
+    
+    Origin == "LAS"|Origin == "RNO" ~ "NV",
+    
+    Origin == "MHT" ~ "NH",
+    
+    Origin == "ACY"|Origin == "EWR"|Origin == "TTN" ~ "NJ",
+    
+    Origin == "ABQ"|Origin == "ALM" ~ "NM",
+    
+    Origin == "ALB"|Origin == "BUF"|Origin == "ISP"|Origin == "JFK"|Origin == "LGA"|Origin == "SWF"|Origin == "ROC"|Origin == "SYR"|Origin == "HPN" ~ "NY",
+    
+    Origin == "AVL"|Origin == "CLT"|Origin == "FAY"|Origin == "GSO"|Origin == "RDU"|Origin == "INT" ~ "NC",
+    
+    Origin == "BIS"|Origin == "FAR" ~ "ND",
+    
+    Origin == "CAK"|Origin == "CVG"|Origin == "CLE"|Origin == "CMH"|Origin == "DAY"|Origin == "TOL" ~ "OH",
+    
+    Origin == "OKC"|Origin == "TUL" ~ "OK",
+    
+    Origin == "EUG"|Origin == "PDX"|Origin == "HIO"|Origin == "SLE" ~ "OR",
+    
+    Origin == "ABE"|Origin == "ERI"|Origin == "MDT"|Origin == "PHL"|Origin == "PIT"|Origin == "AVP" ~ "PA",
+    
+    Origin == "PVD" ~ "RI",
+    
+    Origin == "CHS"|Origin == "CAE"|Origin == "GSP"|Origin == "MYR" ~ "SC",
+    
+    Origin == "PIR"|Origin == "RAP"|Origin == "FSD" ~ "SD",
+    
+    Origin == "TRI"|Origin == "CHA"|Origin == "TYS"|Origin == "MEM"|Origin == "BNA" ~ "TN",
+    
+    Origin == "AMA"|Origin == "AUS"|Origin == "CRP"|Origin == "DAL"|Origin == "DFW"|Origin == "ELP"|Origin == "HOU"|Origin == "IAH"|Origin == "LBB"|Origin == "MAF"|Origin == "SAT" ~ "TX",
+    
+    Origin == "SLC" ~ "UT",
+    
+    Origin == "BTV"|Origin == "MPV"|Origin == "RUT" ~ "VT",
+    
+    Origin == "IAD"|Origin == "PHF"|Origin == "ORF"|Origin == "RIC"|Origin == "ROA" ~ "VA",
+    
+    Origin == "PSC"|Origin == "SEA"|Origin == "GEG" ~ "WA",
+    
+    Origin == "CRW"|Origin == "CKB" ~ "WV",
+    
+    Origin == "GRB"|Origin == "MSM"|Origin == "MKE" ~ "WI",
+    
+    Origin == "CPR"|Origin == "CYS"|Origin == "JAC"|Origin == "RKS" ~ "WY"
+    ))
+```
+
+```{r, include=FALSE}
+df <- df %>%
+  mutate(Dest_state = case_when(
+    Dest == "BHM"|Dest == "DHM"|Dest == "HSV"|Dest == "MOB"|Dest == "MGM" ~ "AL",
+    
+    Dest == "ANC"|Dest == "FAI"|Dest == "JNU" ~ "AK",
+    
+    Dest == "FLG"|Dest == "PHX"|Dest == "TUS"|Dest == "YUM" ~ "AZ",
+    
+    Dest == "FYV"|Dest == "LIT" ~ "AR",
+    
+    Dest == "BUR"|Dest == "FAT"|Dest == "LGB"|Dest == "LAX"|Dest == "OAK"|Dest == "ONT"|Dest == "PSP"|Dest == "SMF"|Dest == "SAN"|Dest == "SFO"|Dest == "SJC"|Dest == "SNA" ~ "CA",
+    
+    Dest == "ASE"|Dest == "COS"|Dest == "DEN"|Dest == "GJT"|Dest == "PUB" ~ "CO",
+    
+    Dest == "BDL" ~ "CT",
+    
+    Dest == "IAD"|Dest == "DCA" ~ "DC",
+    
+    Dest == "DAB"|Dest == "FLL"|Dest == "RSW"|Dest == "JAX"|Dest == "MIA"|Dest == "MCO"|Dest == "PNS"|Dest == "PIE"|Dest == "SRQ"|Dest == "TPA"|Dest == "PBI"|Dest == "PFN" ~ "FL",
+    
+    Dest == "ATL"|Dest == "AGS"|Dest == "SAV" ~ "GA",
+    
+    Dest == "ITO"|Dest == "HNL"|Dest == "OGG"|Dest == "KOA"|Dest == "LIH" ~ "HI",
+    
+    Dest == "BOI" ~ "ID",
+    
+    Dest == "MDW"|Dest == "ORD"|Dest == "MLI"|Dest == "PIA" ~ "IL",
+    
+    Dest == "EVV"|Dest == "FWA"|Dest == "IND"|Dest == "SBN" ~ "IN",
+    
+    Dest == "CID"|Dest == "DSM" ~ "IA",
+    
+    Dest == "ICT" ~ "KS",
+    
+    Dest == "LEX"|Dest == "SDF" ~ "KY",
+    
+    Dest == "BTR"|Dest == "MSY"|Dest == "SHV" ~ "LA",
+    
+    Dest == "AUG"|Dest == "BGR"|Dest == "PWM" ~ "ME",
+    
+    Dest == "BWI" ~ "MD",
+    
+    Dest == "BOS"|Dest == "HYA"|Dest == "ACK"|Dest == "ORH" ~ "MA",
+    
+    Dest == "BTL"|Dest == "DTW"|Dest == "DET"|Dest == "FNT"|Dest == "GRR"|Dest == "AZO"|Dest == "LAN"|Dest == "MBS" ~ "MI",
+    
+    Dest == "DLH"|Dest == "MSP"|Dest == "RST" ~ "MN",
+    
+    Dest == "GPT"|Dest == "JAN" ~ "MS",
+    
+    Dest == "MCI"|Dest == "STL"|Dest == "SGF" ~ "MO",
+    
+    Dest == "BIL" ~ "MT",
+    
+    Dest == "LNK"|Dest == "OMA" ~ "NE",
+    
+    Dest == "LAS"|Dest == "RNO" ~ "NV",
+    
+    Dest == "MHT" ~ "NH",
+    
+    Dest == "ACY"|Dest == "EWR"|Dest == "TTN" ~ "NJ",
+    
+    Dest == "ABQ"|Dest == "ALM" ~ "NM",
+    
+    Dest == "ALB"|Dest == "BUF"|Dest == "ISP"|Dest == "JFK"|Dest == "LGA"|Dest == "SWF"|Dest == "ROC"|Dest == "SYR"|Dest == "HPN" ~ "NY",
+    
+    Dest == "AVL"|Dest == "CLT"|Dest == "FAY"|Dest == "GSO"|Dest == "RDU"|Dest == "INT" ~ "NC",
+    
+    Dest == "BIS"|Dest == "FAR" ~ "ND",
+    
+    Dest == "CAK"|Dest == "CVG"|Dest == "CLE"|Dest == "CMH"|Dest == "DAY"|Dest == "TOL" ~ "OH",
+    
+    Dest == "OKC"|Dest == "TUL" ~ "OK",
+    
+    Dest == "EUG"|Dest == "PDX"|Dest == "HIO"|Dest == "SLE" ~ "OR",
+    
+    Dest == "ABE"|Dest == "ERI"|Dest == "MDT"|Dest == "PHL"|Dest == "PIT"|Dest == "AVP" ~ "PA",
+    
+    Dest == "PVD" ~ "RI",
+    
+    Dest == "CHS"|Dest == "CAE"|Dest == "GSP"|Dest == "MYR" ~ "SC",
+    
+    Dest == "PIR"|Dest == "RAP"|Dest == "FSD" ~ "SD",
+    
+    Dest == "TRI"|Dest == "CHA"|Dest == "TYS"|Dest == "MEM"|Dest == "BNA" ~ "TN",
+    
+    Dest == "AMA"|Dest == "AUS"|Dest == "CRP"|Dest == "DAL"|Dest == "DFW"|Dest == "ELP"|Dest == "HOU"|Dest == "IAH"|Dest == "LBB"|Dest == "MAF"|Dest == "SAT" ~ "TX",
+    
+    Dest == "SLC" ~ "UT",
+    
+    Dest == "BTV"|Dest == "MPV"|Dest == "RUT" ~ "VT",
+    
+    Dest == "IAD"|Dest == "PHF"|Dest == "ORF"|Dest == "RIC"|Dest == "ROA" ~ "VA",
+    
+    Dest == "PSC"|Dest == "SEA"|Dest == "GEG" ~ "WA",
+    
+    Dest == "CRW"|Dest == "CKB" ~ "WV",
+    
+    Dest == "GRB"|Dest == "MSM"|Dest == "MKE" ~ "WI",
+    
+    Dest == "CPR"|Dest == "CYS"|Dest == "JAC"|Dest == "RKS" ~ "WY"
+  ))
+```
+
+We did the following transformations to make this dataset to be ready for data analysis and visualization.
+
+* **Convert blank cell to NA**
+
+There are some blank cells in the original dataset. Changing it to NA will give us better insights regarding missing values.
+
+* **Extract departure hour and arrival hour from DeptTime and ArrTime**
+
+For two variables Deptime and ArrTime (stored as integer), we extract their first one or two digits by dividing the number by 100 and rounding down to an integer. Then, we had two new variables stand for departure hour and arrival hour respectively. The purpose is to analyze the relationship between hour time and cancellation/ delay in the following chapters.
+
+* **Add origin state and destination state**
+
+Since we want to consider geographical location and pursue is there any states in America that have more flight cancellations than others, we need the information of departure and arrival state. Unfortunately, this information is not contained in the original dataset. What we have is the original and destination airport. According to the [airport code and its corresponding state](http://static.samaritanspurse.org.s3.amazonaws.com/public/OHOP/US-Airport-Codes.pdf) available online, we added two new variables to include state information into our dataset.
+
+The transformed dataset is presented below.
+```{r}
+print(head(df, 5))
+```
+
