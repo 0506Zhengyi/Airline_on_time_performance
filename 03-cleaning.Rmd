@@ -11,6 +11,7 @@ df <- read.csv("C:/Users/20961/Desktop/2008.csv")
 ```{r, include=FALSE}
 unique(df$CancellationCode)
 ```
+
 ```{r, include=FALSE}
 #change blank cell to NA
 df <- df %>% 
@@ -233,6 +234,11 @@ df <- df %>%
     Dest == "CPR"|Dest == "CYS"|Dest == "JAC"|Dest == "RKS" ~ "WY"
   ))
 ```
+
+```{r,include=FALSE}
+write.csv(df,"C:/Users/20961/Desktop/transformed_2008.csv", row.names = FALSE)
+```
+
 
 We did the following transformations to make this dataset to be ready for data analysis and visualization.
 

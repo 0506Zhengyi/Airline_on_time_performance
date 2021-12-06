@@ -1,7 +1,7 @@
 # Results
 
-
 ```{r, include=FALSE}
+#load packages
 library(data.table)
 library(dplyr)
 library(lubridate)
@@ -10,4 +10,285 @@ library(ggplot2)
 library(RColorBrewer)
 library(tidyverse)
 library(readr)
+library(maps)
+library(mapdata)
+library(usdata)
+library(ggridges)
+library(Hmisc)
 ```
+
+```{r, include=FALSE}
+df <- read.csv("C:/Users/20961/Desktop/transformed_2008.csv")
+```
+
+
+* graph1
+```{r, include=FALSE}
+#Q1 What is the most common reason for flight cancellation and delay?
+#A-Carrier Caused
+#B-Weather
+#C-National Aviation System
+#D-Security
+#https://aspm.faa.gov/aspmhelp/index/ASPM_Data_Download__Definitions_of_Variables.html
+
+#cancel
+cancel <- df %>%
+  group_by(CancellationCode) %>%
+  summarise(count = n()) %>%
+  na.omit()
+
+#delay
+delay <- df %>%
+  select(c('DepDelay','CarrierDelay','WeatherDelay','NASDelay','SecurityDelay','LateAircraftDelay'))
+
+delay <- delay[delay$DepDelay > 0,]
+
+delay2 <- delay%>% na.omit()
+dc <- nrow(delay2[delay2$CarrierDelay > 0,])
+dw <- nrow(delay2[delay2$WeatherDelay > 0,])
+dn <- nrow(delay2[delay2$NASDelay > 0,])
+ds <- nrow(delay2[delay2$SecurityDelay > 0,])
+dl <- nrow(delay2[delay2$LateAircraftDelay > 0,])
+
+c1 <- c('CarrierDelay','WeatherDelay','NASDelay','SecurityDelay','LateAircraftDelay')
+
+c2 <- c(dc,dw,dn,ds,dl)
+
+delay_count <- data.frame("reason" = c1, "count" = c2, stringsAsFactors = FALSE)
+```
+
+```{r, include=FALSE}
+unique(df$CancellationCode)
+```
+
+```{r}
+plot1 <- cancel %>%
+  ggplot()+
+  geom_bar(mapping = aes(x = CancellationCode, y = count), stat = "identity", fill = "lightblue")+
+  xlab("Reason for cancellation")+
+  ylab("Count")+
+  scale_x_discrete(labels=c("Carrier Caused", "Weather","National Aviation System","Security"))
+
+plot2<- delay_count %>%
+  ggplot()+
+  geom_bar(mapping = aes(x = reorder(reason,-count), y = count), stat = "identity", fill = "cornflowerblue")+
+  xlab("Reason for delay")+
+  ylab("Count")
+
+cowplot::plot_grid(plot1, plot2)
+```
+
+The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only 6 flights canceled due to security out of 2389217 flights.
+
+In contrast, the top 3 reasons for flight delay are the national aviation system, late-arriving aircraft, and carrier caused, which is quite different from cancellation. It is less likely to avoid delay in advance since the top two reasons are not predictable and controllable. However, we can avoid delays by choosing carriers to some extent.
+
+* graph3
+```{r, include=FALSE}
+#Top 5 or 10 (to be determined later) airports/airlines/routes which occur delays most
+
+#airline/carrier
+#Top 10 airlines measured by average delay
+carrier1 <- df %>%
+  select(c('UniqueCarrier','DepDelay'))%>%
+  group_by(UniqueCarrier) %>%
+  mutate(avg_delay = round(mean(DepDelay, na.rm = TRUE),digits = 2)) %>%
+  select(c('UniqueCarrier','avg_delay')) %>%
+  unique() %>%
+  arrange(desc(avg_delay))
+
+carrier1 <- carrier1[1:10,]
+```
+
+```{r, include=FALSE}
+#airline/carrier
+#Top 10 airlines measured by percentage of delayed flights
+car_del <- df %>%
+  select(c('UniqueCarrier', 'DepDelay')) %>%
+  mutate(DelayOrNot = case_when(
+    DepDelay > 0 ~ 1,
+    DepDelay <= 0 ~ 0
+  ))
+
+pct_delayed <- car_del %>%
+  group_by(UniqueCarrier) %>%
+  na.omit() %>%
+  mutate(total_flight = n(), total_delayed = sum(DelayOrNot)) %>%
+  select(c('UniqueCarrier','total_flight','total_delayed')) %>%
+  unique() %>%
+  mutate(pct = total_delayed/total_flight) %>%
+  arrange(desc(pct))
+pct_delayed <- pct_delayed[1:10,]
+```
+
+```{r}
+plot3 <- carrier1 %>%
+  ggplot()+
+  geom_bar(aes(x = reorder(UniqueCarrier,avg_delay), y = avg_delay), stat = "identity", fill = "lightblue")+
+  xlab("Carrier")+
+  ylab("Average delay (mins)")+
+  coord_flip()
+
+plot4 <- pct_delayed %>%
+  ggplot()+
+  geom_bar(aes(x = reorder(UniqueCarrier,pct), y = pct), stat = "identity", fill = "cornflowerblue")+
+  xlab("Carrier")+
+  ylab("Percentage of delayed flights")+
+  coord_flip()
+
+cowplot::plot_grid(plot3, plot4)
+```
+
+* graph5
+```{r, include=FALSE}
+all_states <- map_data("state")
+
+delay_state <- df %>%
+  select(c('Origin_state','DepDelay'))%>%
+  group_by(Origin_state) %>%
+  mutate(delay = round(mean(DepDelay, na.rm = TRUE),digits = 2)) %>%
+  arrange(desc(delay)) %>%
+  mutate(region = abbr2state(Origin_state))
+
+delay_state <- delay_state %>%
+  mutate(region = tolower(region)) %>%
+  select(c('region','delay')) %>%
+  unique()
+  
+
+total <- merge(all_states, delay_state, y.by="region")
+total$region <- factor(total$region)
+total <- total[order(total$order),]
+```
+
+
+```{r}
+plot5 <- ggplot(total, aes(long, lat, group=group, fill = delay)) +
+  geom_polygon()+
+  scale_fill_continuous(
+  low = "#ffffff",high = "#a51626",
+  guide= guide_colorbar(barwidth = 2,barheight = 10))+
+  xlab("Longitude")+
+  ylab("Latitude")
+plot5
+```
+
+* graph8
+```{r, include=FALSE}
+tmp <- df %>%
+  filter(UniqueCarrier == "WN" | UniqueCarrier == "CO"|UniqueCarrier == "F9" | UniqueCarrier == "AA"|UniqueCarrier == "UA" | UniqueCarrier == "EV") %>%
+  select(c('UniqueCarrier','DepHour','DepDelay'))
+
+tmp <- tmp %>%
+  mutate(DelayOrNot = case_when(
+    DepDelay > 0 ~ 1,
+    DepDelay <= 0 ~ 0
+  ))
+
+tmp <- tmp %>%
+  group_by(UniqueCarrier, DepHour) %>%
+  mutate(n_delay = sum(DelayOrNot))
+
+tmp2 <- tmp %>%
+  select(c(UniqueCarrier,DepHour,n_delay)) %>%
+  unique() %>%
+  arrange(UniqueCarrier,DepHour)%>%
+  na.omit()
+```
+
+
+```{r}
+ggplot(data = tmp2) +
+  geom_tile(aes(x = DepHour, y = UniqueCarrier, fill = n_delay), color = 'black') +
+  scale_x_continuous(breaks = c(5,11,17,22), labels = function(x){
+    case_when(x == 5 ~ '5am', x == 11 ~ '11am', x == 17 ~ '5pm', x == 22 ~ '10pm')
+  }) + coord_equal()+
+  scale_fill_distiller(palette = 'Spectral') +
+  labs(x = 'Hour of day', y = 'Airline', fill = ' Number of Delayed flights',
+       title = 'Number of delayed flights by hour of the day') +
+  theme(panel.grid.major = element_blank(), axis.ticks = element_blank(),
+        plot.caption = element_text(vjust = 7), axis.title.y = element_blank())
+
+```
+
+* graph9
+```{r, include=FALSE}
+distance <- df %>%
+  select(c('Distance', 'DepDelay')) %>%
+  na.omit()
+split = sample(x = 1:nrow(distance), size = 0.001*nrow(distance))
+small_dist = distance[split,]
+```
+
+
+```{r}
+small_dist %>%
+  ggplot(aes(x = Distance, y = DepDelay))+
+  geom_point(size = 0.8, alpha = 0.2, stroke = 0)
+```
+
+```{r, include=FALSE}
+tmp3 <- df %>%
+  select(c('UniqueCarrier','CarrierDelay','WeatherDelay','NASDelay','SecurityDelay','LateAircraftDelay')) %>%
+  na.omit() %>%
+  mutate(carrier = case_when(
+    CarrierDelay > 0 ~ 1,
+    CarrierDelay <= 0 ~ 0
+  ), weather = case_when(
+    WeatherDelay > 0 ~ 1,
+    WeatherDelay <= 0 ~ 0
+  ), nas = case_when(
+    NASDelay > 0 ~ 1,
+    NASDelay <= 0 ~ 0
+  ), security = case_when(
+    SecurityDelay > 0 ~ 1,
+    SecurityDelay <= 0 ~ 0
+  ), late = case_when(
+    LateAircraftDelay > 0 ~ 1,
+    LateAircraftDelay <= 0 ~ 0
+  ))
+
+tmp3 <- tmp3 %>%
+  select(c('UniqueCarrier','carrier','weather','nas','security','late'))
+```
+
+```{r,include=FALSE}
+tmp3 <- tmp3 %>%
+  group_by(UniqueCarrier) %>%
+  mutate(total_carrier = sum(carrier),
+         total_weather = sum(weather),
+         total_nas = sum(nas),
+         total_security = sum(security),
+         total_late = sum(late)) %>%
+  select(c('UniqueCarrier','total_carrier','total_weather','total_nas','total_security','total_late')) %>%
+  unique()
+```
+
+
+```{r,include=FALSE}
+tmp3$total = rowSums(tmp3[-1])
+tmp3_p <- tmp3[,c("UniqueCarrier","total")]
+```
+
+
+```{r,include=FALSE}
+tmp3 <- tmp3[-c(7)]
+tmp4 <- tmp3 %>%
+  pivot_longer(!UniqueCarrier, names_to = "reason", values_to = "num_delay")
+```
+
+```{r,include=FALSE}
+tmp5 <- merge(tmp4,tmp3_p,y.by = "UniqueCarrier")
+```
+
+```{r,include=FALSE}
+getPalette = colorRampPalette(brewer.pal(5, "Set2"))
+```
+
+```{r}
+ggplot(tmp5, aes(fill=reason, y=num_delay, x=reorder(UniqueCarrier,total))) + 
+    geom_bar(position="stack", stat="identity") +
+  scale_fill_manual(values=getPalette(5))+
+  coord_flip()
+```
+
+
