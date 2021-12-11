@@ -1,24 +1,25 @@
 # Interactive component
-
-
-<!-- Code from d3-graph-gallery.com -->
 <!DOCTYPE html>
 <meta charset="utf-8">
 
-<!-- Load d3.js -->
 <script src="https://d3js.org/d3.v5.js"></script>
 
-<!-- Add 2 buttons -->
-<button onclick="update(data1)">Y1</button>
-<button onclick="update(data2)">Y2</button>
+<h3 class='text-left'>
+            The Airline Performance by Each Delay Reason In 2008
+          </h3>
+          <p>
+            Nowadays, flight delays is a tricky problem for travelers. Each time when the travelers meet a delay situation, they are curious about the main reason that caused the flight delay. This interactive bar plot below shows the average delay time and the number of delays by each flight delay reason. Please feel free to click the two bottons below to see the results you want! 
+            <br>
+          </p>
 
-<!-- Create a div where the graph will take place -->
+<button onclick="update(data1)">Average Delay(mins)</button>
+<button onclick="update(data2)"># of Delay(count*1000)</button>
+
 <div id="my_dataviz"></div>
 
 
 <script>
 
-// create 2 data_set
 var data1 = [
    {group: "LateAircraft", value: 20.97670989},
    {group: "NAS", value: 16.1584616},
@@ -28,19 +29,17 @@ var data1 = [
 ];
 
 var data2 = [
-   {group: "LateAircraft", value: 20},
-   {group: "NAS", value: 20},
-   {group: "Carrier", value: 20},
-   {group: "Weather", value: 20},
-   {group: "Security", value: 20}
+   {group: "LateAircraft", value: 27.2085},
+   {group: "NAS", value: 27.5652},
+   {group: "Carrier", value: 25.8289},
+   {group: "Weather", value: 3.7599},
+   {group: "Security", value: 0.2746}
 ];
 
-// set the dimensions and margins of the graph
 var margin = {top: 30, right: 30, bottom: 70, left: 60},
     width = 460 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
-// append the svg object to the body of the page
 var svg = d3.select("#my_dataviz")
   .append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -49,7 +48,6 @@ var svg = d3.select("#my_dataviz")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-// X axis
 var x = d3.scaleBand()
   .range([ 0, width ])
   .domain(data1.map(function(d) { return d.group; }))
@@ -58,7 +56,6 @@ svg.append("g")
   .attr("transform", "translate(0," + height + ")")
   .call(d3.axisBottom(x))
 
-// Add Y axis
 var y = d3.scaleLinear()
   .domain([0, 30])
   .range([ height, 0]);
@@ -66,7 +63,6 @@ svg.append("g")
   .attr("class", "myYaxis")
   .call(d3.axisLeft(y));
 
-// A function that create / update the plot for a given variable:
 function update(data) {
 
   var u = svg.selectAll("rect")
@@ -85,7 +81,6 @@ function update(data) {
       .attr("fill", "steelblue")
 }
 
-// Initialize the plot with the first dataset
 update(data1)
 
 </script>
