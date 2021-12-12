@@ -10,8 +10,6 @@ library(ggplot2)
 library(RColorBrewer)
 library(tidyverse)
 library(readr)
-library(maps)
-library(mapdata)
 library(usdata)
 library(ggridges)
 library(Hmisc)
@@ -19,6 +17,7 @@ library(ggpubr)
 library(stats)
 library(patchwork)
 library(GGally)
+library(plotly)
 ```
 
 ```{r, include=FALSE}
@@ -86,8 +85,7 @@ plot13 <- cancel_origin2 %>%
   ggtitle("Top 10 States Occrued Cancellation Most")+
   theme(plot.title = element_text(size = 10))
 
-ggarrange(ggarrange(plot11, plot13, ncol = 2), plot12, nrow = 2,
-          heights = c(3,7)) 
+#ggarrange(ggarrange(plot11, plot13, ncol = 2), plot12, nrow = 2,heights = c(3,7)) 
 ```
 
 ```{r, include=FALSE}
@@ -223,12 +221,15 @@ plot34 <- df32[df32$delay_min <= 200,]%>%
        y = "Reason for Delay",
        caption = "Select delay less than 200 mintues")
 
-ggarrange(ggarrange(legend, ggarrange(plot31, plot32_, ncol = 2, nrow = 1),ncol = 1,nrow = 2,heights = c(2,10)),plot33,plot34,
-          ncol = 1, nrow = 3)
+#ggpubr::ggarrange(
+#  ggarrange(legend, 
+#            ggarrange(plot31, plot32_, ncol = 2, nrow = 1),
+#            ncol = 1,nrow = 2,heights = c(2,10)),
+#  plot33,plot34,ncol = 1, nrow = 3)
 ```
 
 (draft)
-The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only 6 flights canceled due to security out of 2389217 flights.
+The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only x flights canceled due to security out of xx flights.
 
 In contrast, the top 3 reasons for flight delay are the national aviation system, late-arriving aircraft, and carrier caused, which is quite different from cancellation. It is less likely to avoid delay in advance since the top two reasons are not predictable and controllable. However, we can avoid delays by choosing carriers to some extent.
 
@@ -323,8 +324,8 @@ df44 <- merge(df43,df42_p,y.by = "UniqueCarrier")
 getPalette3 = colorRampPalette(brewer.pal(6, "Set2"))
 ```
 
-```{r, fig.height=3}
-  ggplot(df41, aes(x = reorder(UniqueCarrier,-avg_delay), y = avg_delay, fill = judge))+
+```{r, fig.height=6}
+plot41 <- ggplot(df41, aes(x = reorder(UniqueCarrier,-avg_delay), y = avg_delay, fill = judge))+
   geom_bar(stat = "identity")+
   geom_line(aes(x = reorder(UniqueCarrier,-avg_delay), y = pct*15), color = "red", size = 0.9, group = 1, alpha = 0.6)+
   geom_point(aes(x = reorder(UniqueCarrier,-avg_delay), y = pct*15), size = 1.5, group = 1, color = "red", fill = "red", alpha = 0.6)+
@@ -333,51 +334,53 @@ getPalette3 = colorRampPalette(brewer.pal(6, "Set2"))
   theme(legend.position = "None")+
   ylab("Average Delay (mins)")+
   xlab("Carrier")
-```
 
-```{r, fig.height=5}
-ggplot(df44, aes(fill=fct_rev(reason), y=num_delay, x=reorder(UniqueCarrier,total))) + 
-    geom_bar(position="stack", stat="identity") +
-  scale_fill_manual(values=getPalette3(5))+
+plot42 <- ggplot(df44, aes(fill=fct_rev(reason), y=num_delay, x=reorder(UniqueCarrier,total))) + 
+    geom_bar(position="stack", stat="identity")+
   xlab("Airline")+
   ylab("Total Number of Delay")+
+  scale_fill_manual(values=getPalette3(5),name = "Reason", labels = c("Weather", "Security", "NAS","Late Aircraft","Carrier"))+
   coord_flip()
+
+#ggarrange(plot41,plot42,ncol = 1, nrow = 2, heights = c(3,5))
 ```
 
 * Graph5
 ```{r, include=FALSE}
-all_states <- map_data("state")
-
-delay_state <- df %>%
-  select(c("Origin_state","DepDelay"))%>%
+usa <- df %>%
+  select("DepDelay","Origin_state") %>%
+  na.omit() %>%
   group_by(Origin_state) %>%
-  mutate(delay = round(mean(DepDelay, na.rm = TRUE),digits = 2)) %>%
-  arrange(desc(delay)) %>%
-  mutate(region = abbr2state(Origin_state))
-
-delay_state <- delay_state %>%
-  mutate(region = tolower(region)) %>%
-  select(c('region','delay')) %>%
+  mutate(avg_delay = mean(DepDelay)) %>%
+  select("Origin_state","avg_delay") %>%
   unique()
-  
-
-total <- merge(all_states, delay_state, y.by="region")
-total$region <- factor(total$region)
-total <- total[order(total$order),]
 ```
 
-```{r, fig.height=4}
-plot5 <- ggplot(total, aes(long, lat, group=group, fill = delay)) +
-  geom_polygon()+
-  scale_fill_continuous(
-  low = "#ffffff",high = "#a51626",
-  guide= guide_colorbar(barwidth = 2,barheight = 10))+
-  xlab("Longitude")+
-  ylab("Latitude")
-plot5
-```
-* Graph6: airport
 ```{r}
+l <- list(color = toRGB("white"), width = 2)
+# specify some map projection/options
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+fig <- plot_geo(usa, locationmode = 'USA-states')
+fig <- fig %>% add_trace(
+  z = usa$avg_delay, locations = usa$Origin_state,
+  color = usa$avg_delay, colors = 'GnBu'
+)
+fig <- fig %>% colorbar(title = "Average Delay (mins)")
+fig <- fig %>% layout(
+  title = '2008 US Flights Depature Delay by State<br>(Measured by Average Delay in Minutes)',
+  geo = g
+)
+
+fig
+```
+* Graph6: Airport
+```{r, include=FALSE}
 df61 <- df[,c("DepDelay","Origin")] %>%
   na.omit() %>%
   group_by(Origin) %>%
@@ -395,10 +398,10 @@ org_tail10 <- df61_2[1:10,]
 org <- rbind(org_head10, org_tail10)
 org["judge"] = org$avg_delay > 0
 
-df62 <- df[,c("DepDelay","Dest")] %>%
+df62 <- df[,c("ArrDelay","Dest")] %>%
   na.omit() %>%
   group_by(Dest) %>%
-  mutate(avg_delay = mean(DepDelay)) %>%
+  mutate(avg_delay = mean(ArrDelay)) %>%
   select("Dest","avg_delay") %>%
   unique() %>%
   arrange(desc(avg_delay))
@@ -418,17 +421,17 @@ plot61 <- ggplot(org, aes(x = reorder(Origin, -avg_delay), y = avg_delay, fill =
   geom_bar(stat = "identity")+
   scale_fill_manual(values = c("#92c0df","#fcbe75"))+
   theme(legend.position = "None")+
-  ylab("Average Delay (mins)")+
+  ylab("Average Departure Delay (mins)")+
   xlab("Origin Airport")
 
 plot62 <- ggplot(des, aes(x = reorder(Dest, -avg_delay), y = avg_delay, fill = judge))+
   geom_bar(stat = "identity")+
   scale_fill_manual(values = c("#92c0df","#fcbe75"))+
   theme(legend.position = "None")+
-  ylab("Average Delay (mins)")+
+  ylab("Average Arrival Delay (mins)")+
   xlab("Destination Airport")
 
-ggarrange(plot61,plot62,ncol = 1,nrow = 2)
+#ggarrange(plot61,plot62,ncol = 1,nrow = 2)
 ```
 
 * Graph7
@@ -498,6 +501,7 @@ test <- df[,c("UniqueCarrier","DepHour","DepDelay")]
 test <- na.omit(test)
 sum(test[test$UniqueCarrier == "AA" & test$DepHour == 2,]$DepDelay > 0)/nrow(test[test$UniqueCarrier == "AA" & test$DepHour == 2,])
 ```
+
 ```{r, fig.height=3}
 ggplot(data = df74) +
   geom_line(aes(x = DepHour, y = pct_delay, color = UniqueCarrier), size = 0.5) +
@@ -508,11 +512,10 @@ ggplot(data = df74) +
     }) +
   labs(x = 'Time', y = 'Percentage of delayed flights', color = 'Airline',
        title = 'x',
-       subtitle = 'Top US airlines', caption = 'Source: publicly available data from DoT') +
+       subtitle = 'Top US airlines') +
   theme(plot.caption = element_text(vjust = 7)) +
   guides(fill = guide_legend(title = NULL))
 ```
-
 
 * graph9
 ```{r, include=FALSE}
@@ -539,8 +542,8 @@ g <- ggpairs(
   upper = list(continuous = wrap("cor", size = 3))
 )
 g <- g + theme(
-  axis.text = element_text(size = 2),
-  axis.title = element_text(size = 2),
+  axis.text = element_text(size = 0.8),
+  axis.title = element_text(size = 0.8),
   legend.background = element_rect(fill = "white"),
   panel.grid.major = element_line(colour = NA),
   panel.grid.minor = element_blank(),
