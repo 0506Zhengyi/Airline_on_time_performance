@@ -3,5 +3,13 @@ data-sources
 data-transformation
 missing-values
 results
+graph1-most-common-reason-for-flight-cancellation
+graph2-cancellation-rate-vs.-number
+graph3-number-of-delay-and-average-delay-in-mins
+graph4-explore-carrier-that-occure-delay-most
+graph5-average-delay-of-each-state-mins
+graph6-depature-delay-and-arrival-delay-by-airport-top10-and-bottom10
+graph7-delay-by-hourday-of-week
+graph8
 interactive-component
 conclusion
