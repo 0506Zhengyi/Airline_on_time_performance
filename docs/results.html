@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyu Song, Zhengyi Fang" />
 
 
-<meta name="date" content="2021-12-12" />
+<meta name="date" content="2021-12-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,6 +53,13 @@
 
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.10.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
 
 
 
@@ -105,38 +112,44 @@
 <li>Graph1: Most common reason for flight cancellation</li>
 </ul>
 <p><strong>A=Carrier Caused, B=Weather, C=National Aviation System, D=Security</strong></p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+<img src="finalproj_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
 <ul>
 <li>Graph2: Cancellation rate vs. number</li>
 </ul>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
 <ul>
 <li>Graph3: Number of delay and average delay (in mins)</li>
 </ul>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 <p>(draft)
-The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only 6 flights canceled due to security out of 2389217 flights.</p>
+The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only x flights canceled due to security out of xx flights.</p>
 <p>In contrast, the top 3 reasons for flight delay are the national aviation system, late-arriving aircraft, and carrier caused, which is quite different from cancellation. It is less likely to avoid delay in advance since the top two reasons are not predictable and controllable. However, we can avoid delays by choosing carriers to some extent.</p>
 <ul>
 <li>Graph4: Explore carrier that occure delay most</li>
 </ul>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-39-1.png" width="672" /></p>
 <ul>
 <li>Graph5</li>
 </ul>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-21-1.png" width="672" />
-* Graph6: airport</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<div id="htmlwidget-72d97ed6f6d5319f3e64" style="width:672px;height:672px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-72d97ed6f6d5319f3e64">{"x":{"visdat":{"137c3a681552":["function () ","plotlyVisDat"]},"cur_data":"137c3a681552","attrs":{"137c3a681552":{"locationmode":"USA-states","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":[12.1813711507431,9.70456332122936,11.4156264688985,12.0627809771503,9.7540679417642,12.2196852043583,11.4575847639326,10.0968752148242,13.3102691924227,11.4612119570126,20.805873426885,11.7798843187661,10.8188299433844,9.625534477567,10.6661124389484,10.4307981725343,6.94422913318839,12.492224189699,8.4264417223644,10.339602788373,10.4573583098929,13.0591238165955,8.77305178481649,6.70653764160013,7.81267689557575,8.48947732437506,9.73527392558012,12.1077530069716,9.03398647477024,10.0386394239213,10.896990250106,10.133375707847,11.9104850858692,17.6654215921391,13.2353900516445,13.6769299419902,11.5168195718654,10.5891706059304,14.2848072562358,13.3743030917385,13.7902906208719,9.30947643194899,12.7164364660736,8.7208683292415,8.13049579045837,8.93741893644617,1.14635046113307,0.79175704989154,8.35131690739167,6.06907690396323],"locations":["TX","DC","IN","NY","MS","FL","NV","CA","AR","MO","IL","NH","LA","OK","NE","VA","OR","PA","AZ","RI","NC","KY","WA","UT","NM","CT","AL","TN","ID","MD","OH","CO","MI","NJ","WI","SC","WV","KS","VT","IA","ME","MN","GA","MA","WY","SD","HI","MT","ND","AK"],"color":[12.1813711507431,9.70456332122936,11.4156264688985,12.0627809771503,9.7540679417642,12.2196852043583,11.4575847639326,10.0968752148242,13.3102691924227,11.4612119570126,20.805873426885,11.7798843187661,10.8188299433844,9.625534477567,10.6661124389484,10.4307981725343,6.94422913318839,12.492224189699,8.4264417223644,10.339602788373,10.4573583098929,13.0591238165955,8.77305178481649,6.70653764160013,7.81267689557575,8.48947732437506,9.73527392558012,12.1077530069716,9.03398647477024,10.0386394239213,10.896990250106,10.133375707847,11.9104850858692,17.6654215921391,13.2353900516445,13.6769299419902,11.5168195718654,10.5891706059304,14.2848072562358,13.3743030917385,13.7902906208719,9.30947643194899,12.7164364660736,8.7208683292415,8.13049579045837,8.93741893644617,1.14635046113307,0.79175704989154,8.35131690739167,6.06907690396323],"colors":"GnBu","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"mapType":"geo","scene":{"zaxis":{"title":[]}},"geo":{"domain":{"x":[0,1],"y":[0,1]},"scope":"usa","projection":{"type":"albers usa"},"showlakes":true,"lakecolor":"rgba(255,255,255,1)"},"hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5},"title":"2008 US Flights Depature Delay by State<br>(Measured by Average Delay in Minutes)"},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"colorbar":{"title":"Average Delay (mins)","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":[["0","rgba(247,252,240,1)"],["0.0416666666666667","rgba(239,249,233,1)"],["0.0833333333333333","rgba(232,246,226,1)"],["0.125","rgba(224,243,219,1)"],["0.166666666666667","rgba(217,240,212,1)"],["0.208333333333333","rgba(211,238,204,1)"],["0.25","rgba(204,235,197,1)"],["0.291666666666667","rgba(192,230,192,1)"],["0.333333333333333","rgba(180,226,186,1)"],["0.375","rgba(168,221,181,1)"],["0.416666666666667","rgba(154,215,186,1)"],["0.458333333333333","rgba(139,210,191,1)"],["0.5","rgba(123,204,196,1)"],["0.541666666666667","rgba(110,196,201,1)"],["0.583333333333333","rgba(96,187,206,1)"],["0.625","rgba(78,179,211,1)"],["0.666666666666667","rgba(68,166,204,1)"],["0.708333333333333","rgba(56,153,197,1)"],["0.75","rgba(43,140,190,1)"],["0.791666666666667","rgba(35,128,184,1)"],["0.833333333333333","rgba(25,116,178,1)"],["0.875","rgba(8,104,172,1)"],["0.916666666666667","rgba(9,90,157,1)"],["0.958333333333333","rgba(9,77,143,1)"],["1","rgba(8,64,129,1)"]],"showscale":true,"locationmode":"USA-states","z":[12.1813711507431,9.70456332122936,11.4156264688985,12.0627809771503,9.7540679417642,12.2196852043583,11.4575847639326,10.0968752148242,13.3102691924227,11.4612119570126,20.805873426885,11.7798843187661,10.8188299433844,9.625534477567,10.6661124389484,10.4307981725343,6.94422913318839,12.492224189699,8.4264417223644,10.339602788373,10.4573583098929,13.0591238165955,8.77305178481649,6.70653764160013,7.81267689557575,8.48947732437506,9.73527392558012,12.1077530069716,9.03398647477024,10.0386394239213,10.896990250106,10.133375707847,11.9104850858692,17.6654215921391,13.2353900516445,13.6769299419902,11.5168195718654,10.5891706059304,14.2848072562358,13.3743030917385,13.7902906208719,9.30947643194899,12.7164364660736,8.7208683292415,8.13049579045837,8.93741893644617,1.14635046113307,0.79175704989154,8.35131690739167,6.06907690396323],"locations":["TX","DC","IN","NY","MS","FL","NV","CA","AR","MO","IL","NH","LA","OK","NE","VA","OR","PA","AZ","RI","NC","KY","WA","UT","NM","CT","AL","TN","ID","MD","OH","CO","MI","NJ","WI","SC","WV","KS","VT","IA","ME","MN","GA","MA","WY","SD","HI","MT","ND","AK"],"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":0.79175704989154,"cmax":20.805873426885,"colorscale":[["0","rgba(247,252,240,1)"],["0.0416666666666667","rgba(239,249,233,1)"],["0.0833333333333333","rgba(232,246,226,1)"],["0.125","rgba(224,243,219,1)"],["0.166666666666667","rgba(217,240,212,1)"],["0.208333333333333","rgba(211,238,204,1)"],["0.25","rgba(204,235,197,1)"],["0.291666666666667","rgba(192,230,192,1)"],["0.333333333333333","rgba(180,226,186,1)"],["0.375","rgba(168,221,181,1)"],["0.416666666666667","rgba(154,215,186,1)"],["0.458333333333333","rgba(139,210,191,1)"],["0.5","rgba(123,204,196,1)"],["0.541666666666667","rgba(110,196,201,1)"],["0.583333333333333","rgba(96,187,206,1)"],["0.625","rgba(78,179,211,1)"],["0.666666666666667","rgba(68,166,204,1)"],["0.708333333333333","rgba(56,153,197,1)"],["0.75","rgba(43,140,190,1)"],["0.791666666666667","rgba(35,128,184,1)"],["0.833333333333333","rgba(25,116,178,1)"],["0.875","rgba(8,104,172,1)"],["0.916666666666667","rgba(9,90,157,1)"],["0.958333333333333","rgba(9,77,143,1)"],["1","rgba(8,64,129,1)"]],"showscale":false,"color":[12.1813711507431,9.70456332122936,11.4156264688985,12.0627809771503,9.7540679417642,12.2196852043583,11.4575847639326,10.0968752148242,13.3102691924227,11.4612119570126,20.805873426885,11.7798843187661,10.8188299433844,9.625534477567,10.6661124389484,10.4307981725343,6.94422913318839,12.492224189699,8.4264417223644,10.339602788373,10.4573583098929,13.0591238165955,8.77305178481649,6.70653764160013,7.81267689557575,8.48947732437506,9.73527392558012,12.1077530069716,9.03398647477024,10.0386394239213,10.896990250106,10.133375707847,11.9104850858692,17.6654215921391,13.2353900516445,13.6769299419902,11.5168195718654,10.5891706059304,14.2848072562358,13.3743030917385,13.7902906208719,9.30947643194899,12.7164364660736,8.7208683292415,8.13049579045837,8.93741893644617,1.14635046113307,0.79175704989154,8.35131690739167,6.06907690396323]}},"geo":"geo","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<ul>
+<li>Graph6: Airport</li>
+</ul>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-44-1.png" width="672" /></p>
 <ul>
 <li>Graph7</li>
 </ul>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-47-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-49-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-50-1.png" width="672" /></p>
 <ul>
-<li>graph9</li>
+<li>Graph8</li>
 </ul>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-52-1.png" width="672" /></p>
 
 </div>
             </section>
