@@ -15,42 +15,147 @@ library(mapdata)
 library(usdata)
 library(ggridges)
 library(Hmisc)
+library(ggpubr)
+library(stats)
+library(patchwork)
+library(GGally)
 ```
 
 ```{r, include=FALSE}
 df <- read.csv("C:/Users/20961/Desktop/transformed_2008.csv")
 ```
 
+* Graph1: Most common reason for flight cancellation
 
-* graph1
+**A=Carrier Caused, B=Weather, C=National Aviation System, D=Security**
 ```{r, include=FALSE}
-#Q1 What is the most common reason for flight cancellation and delay?
+#Q1 What is the most common reason for flight cancellation?
 #A-Carrier Caused
 #B-Weather
 #C-National Aviation System
 #D-Security
 #https://aspm.faa.gov/aspmhelp/index/ASPM_Data_Download__Definitions_of_Variables.html
+cancel_origin <- df %>%
+  select(Origin_state, CancellationCode) %>%
+  na.omit %>%
+  group_by(Origin_state,CancellationCode) %>%
+  mutate(n_cancel = n()) %>%
+  unique()
 
-#cancel
-cancel <- df %>%
-  group_by(CancellationCode) %>%
-  summarise(count = n()) %>%
-  na.omit()
+cancel_origin2 <- cancel_origin %>%
+  group_by(Origin_state) %>%
+  mutate(total_cancel = sum(n_cancel)) %>%
+  select(Origin_state, total_cancel) %>%
+  unique() %>%
+  arrange(desc(total_cancel))
 
+cancel_origin2 <- cancel_origin2[1:10,]
+```
+
+```{r, include=FALSE}
+unique(df$CancellationCode)
+```
+
+```{r,fig.height=6}
+plot11 <- df %>% 
+  filter(!is.na(CancellationCode)) %>%
+  ggplot(aes(x = CancellationCode,na.rm = TRUE))+
+  geom_bar(fill = "cornflowerblue")+
+  xlab("Reason for Cancellation")+
+  ylab("Count")+
+  ggtitle("Number of Cancellation by Reason")+
+  theme(plot.title = element_text(size = 10))
+  #scale_x_discrete(labels=c("Carrier Caused", "Weather","National Aviation System","Security"))
+
+plot12 <- df %>% 
+  filter(!is.na(CancellationCode)) %>%
+  ggplot(aes(x = CancellationCode,na.rm = TRUE))+
+  geom_bar()+
+  xlab("Reason for Cancellation")+
+  ylab("Count")+
+  #scale_x_discrete(labels=c("Carrier Caused", "Weather","National Aviation System","Security"))+
+  facet_wrap(~UniqueCarrier)+
+  ggtitle("Number of Cancellation by Reason Faceted by Carrier")+
+  theme(plot.title = element_text(size = 12))
+
+plot13 <- cancel_origin2 %>%
+  ggplot()+
+  geom_bar(mapping = aes(x = reorder(Origin_state,-total_cancel), y = total_cancel), stat = "identity", fill = "lightblue")+
+  xlab("Origin State")+
+  ylab("Count")+
+  ggtitle("Top 10 States Occrued Cancellation Most")+
+  theme(plot.title = element_text(size = 10))
+
+ggarrange(ggarrange(plot11, plot13, ncol = 2), plot12, nrow = 2,
+          heights = c(3,7)) 
+```
+
+```{r, include=FALSE}
+#test
+test <- df[,c("Origin_state","CancellationCode")]
+test <- test[!is.na(test$CancellationCode),]
+test <- na.omit(test)
+nrow(test[test$Origin_state == "CA",])
+```
+
+* Graph2: Cancellation rate vs. number
+```{r, include=FALSE}
+#filter and transform data
+df2 <- df %>%
+  select("UniqueCarrier","CancellationCode") %>%
+  group_by(UniqueCarrier) %>%
+  mutate(total_flight = n())
+
+df22 <- df2 %>%
+  na.omit() %>%
+  select("UniqueCarrier","CancellationCode") %>%
+  group_by(UniqueCarrier,CancellationCode) %>%
+  mutate(n_cancel = n()) %>%
+  unique() %>%
+  arrange(UniqueCarrier,CancellationCode)
+
+df23 <- df22 %>%
+  group_by(UniqueCarrier) %>%
+  mutate(total_cancel = sum(n_cancel))
+
+df2 <- df2 %>%
+  select("UniqueCarrier","total_flight") %>%
+  unique()
+
+df24 <- merge(df23,df2,by="UniqueCarrier",all.x = TRUE)
+df24 <- df24 %>%
+  mutate(cancel_rate = total_cancel/total_flight)
+
+getPalette = colorRampPalette(brewer.pal(4, "Purples"))
+```
+
+```{r, fig.height=4}
+ggplot(df24, aes(fill=fct_rev(CancellationCode), y=n_cancel, x=reorder(UniqueCarrier,-total_cancel))) +
+  geom_bar(position="stack", stat="identity") +
+  scale_fill_manual(values=getPalette(5))+
+  geom_line(aes(x=reorder(UniqueCarrier,-total_cancel), y = 100000*cancel_rate), size = 1, color="red", group = 1) + 
+  scale_y_continuous(sec.axis = sec_axis(~./100000, name = "Cancellation Rate"))+
+  xlab("Carrier")+
+  ylab("Number of Cancellation")+
+  labs(fill = "Cancellation Code")
+```
+
+* Graph3: Number of delay and average delay (in mins)
+```{r, include=FALSE}
 #delay
 delay <- df %>%
-  select(c('DepDelay','CarrierDelay','WeatherDelay','NASDelay','SecurityDelay','LateAircraftDelay'))
+  select(c("DepDelay","CarrierDelay","WeatherDelay","NASDelay","SecurityDelay","LateAircraftDelay"))
 
 delay <- delay[delay$DepDelay > 0,]
 
-delay2 <- delay%>% na.omit()
+delay2 <- delay %>% na.omit()
 dc <- nrow(delay2[delay2$CarrierDelay > 0,])
 dw <- nrow(delay2[delay2$WeatherDelay > 0,])
 dn <- nrow(delay2[delay2$NASDelay > 0,])
 ds <- nrow(delay2[delay2$SecurityDelay > 0,])
 dl <- nrow(delay2[delay2$LateAircraftDelay > 0,])
 
-c1 <- c('CarrierDelay','WeatherDelay','NASDelay','SecurityDelay','LateAircraftDelay')
+c1 <- c("CarrierDelay","WeatherDelay","NASDelay","SecurityDelay","LateAircraftDelay")
 
 c2 <- c(dc,dw,dn,ds,dl)
 
@@ -58,33 +163,78 @@ delay_count <- data.frame("reason" = c1, "count" = c2, stringsAsFactors = FALSE)
 ```
 
 ```{r, include=FALSE}
-unique(df$CancellationCode)
+df31 <- df[,c1] %>%
+  na.omit() 
+df32 <- df31 %>%
+  mutate(id = row_number()) %>%
+  pivot_longer(!id, names_to = "reason", values_to = "delay_min") %>%
+  select("reason","delay_min") %>%
+  arrange(reason)
+
+df32 <- df32[df32$delay_min != 0,]
+
+df33 <- df32 %>%
+  group_by(reason) %>%
+  mutate(avg_delay = mean(delay_min)) %>%
+  select("reason","avg_delay") %>%
+  unique()
+
+getPalette2 = colorRampPalette(brewer.pal(5, "GnBu"))
 ```
 
-```{r}
-plot1 <- cancel %>%
+```{r, fig.height=7.5}
+#barchart: number of delay
+plot31 <- delay_count %>%
   ggplot()+
-  geom_bar(mapping = aes(x = CancellationCode, y = count), stat = "identity", fill = "lightblue")+
-  xlab("Reason for cancellation")+
+  geom_bar(mapping = aes(x = reorder(reason,-count), y = count,fill = reason), stat = "identity")+
+  xlab("Reason for Delay")+
   ylab("Count")+
-  scale_x_discrete(labels=c("Carrier Caused", "Weather","National Aviation System","Security"))
+  scale_fill_manual(values=getPalette2(5))+
+  theme(legend.position = "None",
+        axis.text.x = element_text(size=6))
 
-plot2<- delay_count %>%
-  ggplot()+
-  geom_bar(mapping = aes(x = reorder(reason,-count), y = count), stat = "identity", fill = "cornflowerblue")+
-  xlab("Reason for delay")+
-  ylab("Count")
+#barchart: average delay (mins)
+plot32 <- df33 %>% ggplot()+
+  geom_bar(mapping = aes(x = reorder(reason,-avg_delay), y = avg_delay, fill = reason), stat = "identity")+
+  xlab("Reason for Delay")+
+  ylab("Average Delay (mins)")+
+  scale_fill_manual(values=getPalette2(5))+
+  theme(legend.title = element_blank(),legend.position = "top",
+        axis.text.x = element_text(size=6))
 
-cowplot::plot_grid(plot1, plot2)
+legend <- get_legend(plot32)
+
+plot32_ <- plot32 + theme(legend.position = "None")
+
+#boxplot: delay reason vs delay mins
+#explore median, outliers
+plot33 <- ggplot(df32, aes(x=reason, y=delay_min)) + 
+    geom_boxplot(notch=TRUE,notchwidth = 0.8,
+        outlier.colour="red",outlier.size = 2,outlier.shape = 1)+
+  xlab("Reason for Delay")+
+  ylab("Delay (mins)")
+
+#redgeplot: delay reason vs. delay mins
+#explore distribution
+plot34 <- df32[df32$delay_min <= 200,]%>%
+  ggplot(aes(delay_min, fct_reorder(reason, delay_min,median))) + 
+  geom_density_ridges(fill = "cornflowerblue", alpha = .3,scale = 1)+
+  labs(x = "Delay (mins)",
+       y = "Reason for Delay",
+       caption = "Select delay less than 200 mintues")
+
+ggarrange(ggarrange(legend, ggarrange(plot31, plot32_, ncol = 2, nrow = 1),ncol = 1,nrow = 2,heights = c(2,10)),plot33,plot34,
+          ncol = 1, nrow = 3)
 ```
 
+(draft)
 The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only 6 flights canceled due to security out of 2389217 flights.
 
 In contrast, the top 3 reasons for flight delay are the national aviation system, late-arriving aircraft, and carrier caused, which is quite different from cancellation. It is less likely to avoid delay in advance since the top two reasons are not predictable and controllable. However, we can avoid delays by choosing carriers to some extent.
 
-* graph3
+* Graph4: Explore carrier that occure delay most
 ```{r, include=FALSE}
-#Top 5 or 10 (to be determined later) airports/airlines/routes which occur delays most
+#Top 10 carrier which occur delays most
 
 #airline/carrier
 #Top 10 airlines measured by average delay
@@ -95,8 +245,6 @@ carrier1 <- df %>%
   select(c('UniqueCarrier','avg_delay')) %>%
   unique() %>%
   arrange(desc(avg_delay))
-
-carrier1 <- carrier1[1:10,]
 ```
 
 ```{r, include=FALSE}
@@ -117,117 +265,18 @@ pct_delayed <- car_del %>%
   unique() %>%
   mutate(pct = total_delayed/total_flight) %>%
   arrange(desc(pct))
-pct_delayed <- pct_delayed[1:10,]
-```
 
-```{r}
-plot3 <- carrier1 %>%
-  ggplot()+
-  geom_bar(aes(x = reorder(UniqueCarrier,avg_delay), y = avg_delay), stat = "identity", fill = "lightblue")+
-  xlab("Carrier")+
-  ylab("Average delay (mins)")+
-  coord_flip()
-
-plot4 <- pct_delayed %>%
-  ggplot()+
-  geom_bar(aes(x = reorder(UniqueCarrier,pct), y = pct), stat = "identity", fill = "cornflowerblue")+
-  xlab("Carrier")+
-  ylab("Percentage of delayed flights")+
-  coord_flip()
-
-cowplot::plot_grid(plot3, plot4)
-```
-
-* graph5
-```{r, include=FALSE}
-all_states <- map_data("state")
-
-delay_state <- df %>%
-  select(c('Origin_state','DepDelay'))%>%
-  group_by(Origin_state) %>%
-  mutate(delay = round(mean(DepDelay, na.rm = TRUE),digits = 2)) %>%
-  arrange(desc(delay)) %>%
-  mutate(region = abbr2state(Origin_state))
-
-delay_state <- delay_state %>%
-  mutate(region = tolower(region)) %>%
-  select(c('region','delay')) %>%
-  unique()
-  
-
-total <- merge(all_states, delay_state, y.by="region")
-total$region <- factor(total$region)
-total <- total[order(total$order),]
-```
-
-
-```{r}
-plot5 <- ggplot(total, aes(long, lat, group=group, fill = delay)) +
-  geom_polygon()+
-  scale_fill_continuous(
-  low = "#ffffff",high = "#a51626",
-  guide= guide_colorbar(barwidth = 2,barheight = 10))+
-  xlab("Longitude")+
-  ylab("Latitude")
-plot5
-```
-
-* graph8
-```{r, include=FALSE}
-tmp <- df %>%
-  filter(UniqueCarrier == "WN" | UniqueCarrier == "CO"|UniqueCarrier == "F9" | UniqueCarrier == "AA"|UniqueCarrier == "UA" | UniqueCarrier == "EV") %>%
-  select(c('UniqueCarrier','DepHour','DepDelay'))
-
-tmp <- tmp %>%
-  mutate(DelayOrNot = case_when(
-    DepDelay > 0 ~ 1,
-    DepDelay <= 0 ~ 0
+df41 <- merge(carrier1,pct_delayed, by="UniqueCarrier",all.x = TRUE)
+df41 <- df41 %>%
+  mutate(judge = case_when(
+    avg_delay > 0 ~ TRUE,
+    avg_delay < 0 ~ FALSE
   ))
-
-tmp <- tmp %>%
-  group_by(UniqueCarrier, DepHour) %>%
-  mutate(n_delay = sum(DelayOrNot))
-
-tmp2 <- tmp %>%
-  select(c(UniqueCarrier,DepHour,n_delay)) %>%
-  unique() %>%
-  arrange(UniqueCarrier,DepHour)%>%
-  na.omit()
-```
-
-
-```{r}
-ggplot(data = tmp2) +
-  geom_tile(aes(x = DepHour, y = UniqueCarrier, fill = n_delay), color = 'black') +
-  scale_x_continuous(breaks = c(5,11,17,22), labels = function(x){
-    case_when(x == 5 ~ '5am', x == 11 ~ '11am', x == 17 ~ '5pm', x == 22 ~ '10pm')
-  }) + coord_equal()+
-  scale_fill_distiller(palette = 'Spectral') +
-  labs(x = 'Hour of day', y = 'Airline', fill = ' Number of Delayed flights',
-       title = 'Number of delayed flights by hour of the day') +
-  theme(panel.grid.major = element_blank(), axis.ticks = element_blank(),
-        plot.caption = element_text(vjust = 7), axis.title.y = element_blank())
-
-```
-
-* graph9
-```{r, include=FALSE}
-distance <- df %>%
-  select(c('Distance', 'DepDelay')) %>%
-  na.omit()
-split = sample(x = 1:nrow(distance), size = 0.001*nrow(distance))
-small_dist = distance[split,]
-```
-
-
-```{r}
-small_dist %>%
-  ggplot(aes(x = Distance, y = DepDelay))+
-  geom_point(size = 0.8, alpha = 0.2, stroke = 0)
 ```
 
 ```{r, include=FALSE}
-tmp3 <- df %>%
+#tmp3 -> df42
+df42 <- df %>%
   select(c('UniqueCarrier','CarrierDelay','WeatherDelay','NASDelay','SecurityDelay','LateAircraftDelay')) %>%
   na.omit() %>%
   mutate(carrier = case_when(
@@ -247,12 +296,10 @@ tmp3 <- df %>%
     LateAircraftDelay <= 0 ~ 0
   ))
 
-tmp3 <- tmp3 %>%
+df42 <- df42 %>%
   select(c('UniqueCarrier','carrier','weather','nas','security','late'))
-```
 
-```{r,include=FALSE}
-tmp3 <- tmp3 %>%
+df42 <- df42 %>%
   group_by(UniqueCarrier) %>%
   mutate(total_carrier = sum(carrier),
          total_weather = sum(weather),
@@ -261,34 +308,243 @@ tmp3 <- tmp3 %>%
          total_late = sum(late)) %>%
   select(c('UniqueCarrier','total_carrier','total_weather','total_nas','total_security','total_late')) %>%
   unique()
-```
 
+df42$total = rowSums(df42[-1])
+df42_p <- df42[,c("UniqueCarrier","total")]
 
-```{r,include=FALSE}
-tmp3$total = rowSums(tmp3[-1])
-tmp3_p <- tmp3[,c("UniqueCarrier","total")]
-```
-
-
-```{r,include=FALSE}
-tmp3 <- tmp3[-c(7)]
-tmp4 <- tmp3 %>%
+#tmp4 -> df43
+df42 <- df42[-c(7)]
+df43 <- df42 %>%
   pivot_longer(!UniqueCarrier, names_to = "reason", values_to = "num_delay")
+
+#tmp5 -> df44
+df44 <- merge(df43,df42_p,y.by = "UniqueCarrier")
+
+getPalette3 = colorRampPalette(brewer.pal(6, "Set2"))
 ```
 
-```{r,include=FALSE}
-tmp5 <- merge(tmp4,tmp3_p,y.by = "UniqueCarrier")
+```{r, fig.height=3}
+  ggplot(df41, aes(x = reorder(UniqueCarrier,-avg_delay), y = avg_delay, fill = judge))+
+  geom_bar(stat = "identity")+
+  geom_line(aes(x = reorder(UniqueCarrier,-avg_delay), y = pct*15), color = "red", size = 0.9, group = 1, alpha = 0.6)+
+  geom_point(aes(x = reorder(UniqueCarrier,-avg_delay), y = pct*15), size = 1.5, group = 1, color = "red", fill = "red", alpha = 0.6)+
+  scale_y_continuous(sec.axis=sec_axis(~./15,name = "Percentage of Delayed Flights"))+
+  scale_fill_manual(values = c("#92c0df","#fcbe75"))+
+  theme(legend.position = "None")+
+  ylab("Average Delay (mins)")+
+  xlab("Carrier")
 ```
 
-```{r,include=FALSE}
-getPalette = colorRampPalette(brewer.pal(5, "Set2"))
-```
-
-```{r}
-ggplot(tmp5, aes(fill=reason, y=num_delay, x=reorder(UniqueCarrier,total))) + 
+```{r, fig.height=5}
+ggplot(df44, aes(fill=fct_rev(reason), y=num_delay, x=reorder(UniqueCarrier,total))) + 
     geom_bar(position="stack", stat="identity") +
-  scale_fill_manual(values=getPalette(5))+
+  scale_fill_manual(values=getPalette3(5))+
+  xlab("Airline")+
+  ylab("Total Number of Delay")+
   coord_flip()
 ```
 
+* Graph5
+```{r, include=FALSE}
+all_states <- map_data("state")
 
+delay_state <- df %>%
+  select(c("Origin_state","DepDelay"))%>%
+  group_by(Origin_state) %>%
+  mutate(delay = round(mean(DepDelay, na.rm = TRUE),digits = 2)) %>%
+  arrange(desc(delay)) %>%
+  mutate(region = abbr2state(Origin_state))
+
+delay_state <- delay_state %>%
+  mutate(region = tolower(region)) %>%
+  select(c('region','delay')) %>%
+  unique()
+  
+
+total <- merge(all_states, delay_state, y.by="region")
+total$region <- factor(total$region)
+total <- total[order(total$order),]
+```
+
+```{r, fig.height=4}
+plot5 <- ggplot(total, aes(long, lat, group=group, fill = delay)) +
+  geom_polygon()+
+  scale_fill_continuous(
+  low = "#ffffff",high = "#a51626",
+  guide= guide_colorbar(barwidth = 2,barheight = 10))+
+  xlab("Longitude")+
+  ylab("Latitude")
+plot5
+```
+* Graph6: airport
+```{r}
+df61 <- df[,c("DepDelay","Origin")] %>%
+  na.omit() %>%
+  group_by(Origin) %>%
+  mutate(avg_delay = mean(DepDelay)) %>%
+  select("Origin","avg_delay") %>%
+  unique() %>%
+  arrange(desc(avg_delay))
+
+df61_2 <- df61 %>%
+  arrange(avg_delay)
+
+org_head10 <- df61[1:10,]
+org_tail10 <- df61_2[1:10,]
+
+org <- rbind(org_head10, org_tail10)
+org["judge"] = org$avg_delay > 0
+
+df62 <- df[,c("DepDelay","Dest")] %>%
+  na.omit() %>%
+  group_by(Dest) %>%
+  mutate(avg_delay = mean(DepDelay)) %>%
+  select("Dest","avg_delay") %>%
+  unique() %>%
+  arrange(desc(avg_delay))
+
+df62_2 <- df62 %>%
+  arrange(avg_delay)
+
+des_head10 <- df62[1:10,]
+des_tail10 <- df62_2[1:10,]
+
+des <- rbind(des_head10, des_tail10)
+des["judge"] = des$avg_delay > 0
+```
+
+```{r, fig.height=5}
+plot61 <- ggplot(org, aes(x = reorder(Origin, -avg_delay), y = avg_delay, fill = judge))+
+  geom_bar(stat = "identity")+
+  scale_fill_manual(values = c("#92c0df","#fcbe75"))+
+  theme(legend.position = "None")+
+  ylab("Average Delay (mins)")+
+  xlab("Origin Airport")
+
+plot62 <- ggplot(des, aes(x = reorder(Dest, -avg_delay), y = avg_delay, fill = judge))+
+  geom_bar(stat = "identity")+
+  scale_fill_manual(values = c("#92c0df","#fcbe75"))+
+  theme(legend.position = "None")+
+  ylab("Average Delay (mins)")+
+  xlab("Destination Airport")
+
+ggarrange(plot61,plot62,ncol = 1,nrow = 2)
+```
+
+* Graph7
+```{r, include=FALSE}
+df71 <- df %>%
+  filter(UniqueCarrier == "WN"|UniqueCarrier == "CO"|UniqueCarrier == "F9"|UniqueCarrier == "AA"|UniqueCarrier == "UA"|UniqueCarrier == "EV"|UniqueCarrier == "MQ"|UniqueCarrier == "XE"|UniqueCarrier == "FL"|UniqueCarrier == "AS") %>%
+  select(c('UniqueCarrier','DepHour','DepDelay'))
+
+df71 <- df71 %>%
+  mutate(DelayOrNot = case_when(
+    DepDelay > 0 ~ 1,
+    DepDelay <= 0 ~ 0
+  ))
+
+df71 <- df71 %>%
+  group_by(UniqueCarrier, DepHour) %>%
+  mutate(total_flight_hour = n(), total_delay_hour = sum(DelayOrNot)) %>%
+  mutate(pct_delay = total_delay_hour/total_flight_hour)
+
+df72 <- df71 %>%
+  select(c(UniqueCarrier,DepHour,pct_delay)) %>%
+  unique() %>%
+  arrange(UniqueCarrier,DepHour)%>%
+  na.omit()
+```
+
+```{r}
+df73 <- df %>%
+  filter(UniqueCarrier == "WN"|UniqueCarrier == "CO"|UniqueCarrier == "F9"|UniqueCarrier == "AA"|UniqueCarrier == "UA") %>%
+  select(c('UniqueCarrier',"DayOfWeek",'DepHour','DepDelay'))
+
+df73 <- df73 %>%
+  mutate(DelayOrNot = case_when(
+    DepDelay > 0 ~ 1,
+    DepDelay <= 0 ~ 0
+  ))
+
+df73 <- df73 %>%
+  group_by(UniqueCarrier,DayOfWeek,DepHour) %>%
+  mutate(total_flight_hour = n(), total_delay_hour = sum(DelayOrNot)) %>%
+  mutate(pct_delay = total_delay_hour/total_flight_hour)
+
+df74 <- df73 %>%
+  select(c(UniqueCarrier,DayOfWeek,DepHour,pct_delay)) %>%
+  unique() %>%
+  arrange(UniqueCarrier,DayOfWeek,DepHour)%>%
+  na.omit()
+```
+
+```{r}
+ggplot(data = df72 ) +
+  geom_tile(aes(x = DepHour, y = UniqueCarrier, fill = pct_delay), color = 'black') +
+  scale_x_continuous(breaks = c(5,11,17,22), labels = function(x){
+    case_when(x == 5 ~ '5am', x == 11 ~ '11am', x == 17 ~ '5pm', x == 22 ~ '10pm')
+  }) + coord_equal()+
+  scale_fill_distiller(palette = 'Spectral') +
+  labs(x = 'Hour of day', y = 'Airline', fill = 'Percentage',
+       title = 'Percentage of delayed flights by hour of the day') +
+  theme(panel.grid.major = element_blank(), axis.ticks = element_blank(),
+        plot.caption = element_text(vjust = 7), axis.title.y = element_blank())
+
+```
+
+```{r,include=FALSE}
+#test
+test <- df[,c("UniqueCarrier","DepHour","DepDelay")]
+test <- na.omit(test)
+sum(test[test$UniqueCarrier == "AA" & test$DepHour == 2,]$DepDelay > 0)/nrow(test[test$UniqueCarrier == "AA" & test$DepHour == 2,])
+```
+```{r, fig.height=3}
+ggplot(data = df74) +
+  geom_line(aes(x = DepHour, y = pct_delay, color = UniqueCarrier), size = 0.5) +
+  geom_point(aes(x = DepHour, y = pct_delay, color = UniqueCarrier), size = 0.7) +
+  facet_grid(~DayOfWeek) +
+  scale_x_continuous(limits = c(0,24), breaks = 8*c(0:3), labels = function(x){
+    case_when(x == 0 ~ '', x == 8 ~ '8am', x == 16 ~ '4pm', x == 24 ~ '12am')
+    }) +
+  labs(x = 'Time', y = 'Percentage of delayed flights', color = 'Airline',
+       title = 'x',
+       subtitle = 'Top US airlines', caption = 'Source: publicly available data from DoT') +
+  theme(plot.caption = element_text(vjust = 7)) +
+  guides(fill = guide_legend(title = NULL))
+```
+
+
+* graph9
+```{r, include=FALSE}
+df91 <- df %>%
+  select(c('Distance', 'DepDelay',"ActualElapsedTime","CRSElapsedTime","AirTime","ArrDelay","DepHour","DayofMonth","DayOfWeek")) %>%
+  na.omit()
+split = sample(x = 1:nrow(df91), size = 0.00001*nrow(df91))
+small_dist = df91[split,]
+```
+
+```{r}
+lowerFn <- function(data, mapping, ...) {
+  p <- ggplot(data = data, mapping = mapping) +
+    geom_point(color = 'blue', alpha=0.3, size=0.5) +
+    geom_smooth(color = 'black', method='lm', size=0.5,...)
+  p
+}
+
+g <- ggpairs( 
+  data = small_dist,
+  lower = list(
+    continuous =  wrap(lowerFn) #wrap("smooth", alpha = 0.3, color = "blue", lwd=1) 
+  ),
+  upper = list(continuous = wrap("cor", size = 3))
+)
+g <- g + theme(
+  axis.text = element_text(size = 2),
+  axis.title = element_text(size = 2),
+  legend.background = element_rect(fill = "white"),
+  panel.grid.major = element_line(colour = NA),
+  panel.grid.minor = element_blank(),
+  panel.background = element_rect(fill = "grey95")
+)
+print(g, bottomHeightProportion = 0.5, leftWidthProportion = .5)
+```
