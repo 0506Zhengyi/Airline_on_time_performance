@@ -18,6 +18,7 @@ library(stats)
 library(patchwork)
 library(GGally)
 library(plotly)
+library(gridExtra)
 ```
 
 ```{r, include=FALSE}
@@ -86,6 +87,13 @@ plot13 <- cancel_origin2 %>%
   theme(plot.title = element_text(size = 10))
 
 #ggarrange(ggarrange(plot11, plot13, ncol = 2), plot12, nrow = 2,heights = c(3,7)) 
+```
+
+```{r, fig.height=2}
+grid.arrange(plot11, plot13, ncol=2)
+```
+```{r}
+plot12
 ```
 
 ```{r, include=FALSE}
@@ -199,10 +207,7 @@ plot32 <- df33 %>% ggplot()+
   scale_fill_manual(values=getPalette2(5))+
   theme(legend.title = element_blank(),legend.position = "top",
         axis.text.x = element_text(size=6))
-
-legend <- get_legend(plot32)
-
-plot32_ <- plot32 + theme(legend.position = "None")
+plot32_<- plot32+ theme(legend.position = "None")
 
 #boxplot: delay reason vs delay mins
 #explore median, outliers
@@ -227,6 +232,22 @@ plot34 <- df32[df32$delay_min <= 200,]%>%
 #            ncol = 1,nrow = 2,heights = c(2,10)),
 #  plot33,plot34,ncol = 1, nrow = 3)
 ```
+
+
+```{r, fig.height=3}
+shared_legend <- get_legend(plot32)
+grid.arrange(shared_legend,
+             arrangeGrob(plot31, plot32_, ncol = 2),nrow = 2, heights = c(1, 10))
+```
+
+```{r,fig.height=3}
+plot33
+```
+
+```{r,fig.height=3}
+plot34
+```
+
 
 (draft)
 The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only x flights canceled due to security out of xx flights.
@@ -324,7 +345,7 @@ df44 <- merge(df43,df42_p,y.by = "UniqueCarrier")
 getPalette3 = colorRampPalette(brewer.pal(6, "Set2"))
 ```
 
-```{r, fig.height=6}
+```{r, include=FALSE}
 plot41 <- ggplot(df41, aes(x = reorder(UniqueCarrier,-avg_delay), y = avg_delay, fill = judge))+
   geom_bar(stat = "identity")+
   geom_line(aes(x = reorder(UniqueCarrier,-avg_delay), y = pct*15), color = "red", size = 0.9, group = 1, alpha = 0.6)+
@@ -345,6 +366,11 @@ plot42 <- ggplot(df44, aes(fill=fct_rev(reason), y=num_delay, x=reorder(UniqueCa
 #ggarrange(plot41,plot42,ncol = 1, nrow = 2, heights = c(3,5))
 ```
 
+```{r, fig.height=6}
+grid.arrange(plot41,plot42,nrow = 2, heights = c(3, 5))
+```
+
+
 * Graph5
 ```{r, include=FALSE}
 usa <- df %>%
@@ -356,7 +382,7 @@ usa <- df %>%
   unique()
 ```
 
-```{r}
+```{r, fig.height=7}
 l <- list(color = toRGB("white"), width = 2)
 # specify some map projection/options
 g <- list(
@@ -416,7 +442,7 @@ des <- rbind(des_head10, des_tail10)
 des["judge"] = des$avg_delay > 0
 ```
 
-```{r, fig.height=5}
+```{r, include=FALSE}
 plot61 <- ggplot(org, aes(x = reorder(Origin, -avg_delay), y = avg_delay, fill = judge))+
   geom_bar(stat = "identity")+
   scale_fill_manual(values = c("#92c0df","#fcbe75"))+
@@ -433,6 +459,12 @@ plot62 <- ggplot(des, aes(x = reorder(Dest, -avg_delay), y = avg_delay, fill = j
 
 #ggarrange(plot61,plot62,ncol = 1,nrow = 2)
 ```
+
+```{r, fig.height=5}
+grid.arrange(plot61,plot62,nrow = 2)
+
+```
+
 
 * Graph7
 ```{r, include=FALSE}
@@ -478,7 +510,18 @@ df74 <- df73 %>%
   select(c(UniqueCarrier,DayOfWeek,DepHour,pct_delay)) %>%
   unique() %>%
   arrange(UniqueCarrier,DayOfWeek,DepHour)%>%
-  na.omit()
+  na.omit() %>%
+  mutate(week = case_when(
+    DayOfWeek == 1 ~ "Monday",
+    DayOfWeek == 2 ~ "Tuesday",
+    DayOfWeek == 3 ~ "Wednesday",
+    DayOfWeek == 4 ~ "Thursday",
+    DayOfWeek == 5 ~ "Friday",
+    DayOfWeek == 6 ~ "Saturday",
+    DayOfWeek == 7 ~ "Sunday"
+  ))
+
+df74$week <- factor(df74$week,levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
 ```
 
 ```{r}
@@ -506,18 +549,40 @@ sum(test[test$UniqueCarrier == "AA" & test$DepHour == 2,]$DepDelay > 0)/nrow(tes
 ggplot(data = df74) +
   geom_line(aes(x = DepHour, y = pct_delay, color = UniqueCarrier), size = 0.5) +
   geom_point(aes(x = DepHour, y = pct_delay, color = UniqueCarrier), size = 0.7) +
-  facet_grid(~DayOfWeek) +
+  facet_grid(~week) +
   scale_x_continuous(limits = c(0,24), breaks = 8*c(0:3), labels = function(x){
     case_when(x == 0 ~ '', x == 8 ~ '8am', x == 16 ~ '4pm', x == 24 ~ '12am')
     }) +
   labs(x = 'Time', y = 'Percentage of delayed flights', color = 'Airline',
-       title = 'x',
+       title = 'Percentage of Delayed Flight by Time of the Week',
        subtitle = 'Top US airlines') +
   theme(plot.caption = element_text(vjust = 7)) +
   guides(fill = guide_legend(title = NULL))
 ```
 
-* graph9
+```{r}
+df73 <- df73 %>%
+  mutate(week = case_when(
+    DayOfWeek == 1 ~ "Monday",
+    DayOfWeek == 2 ~ "Tuesday",
+    DayOfWeek == 3 ~ "Wednesday",
+    DayOfWeek == 4 ~ "Thursday",
+    DayOfWeek == 5 ~ "Friday",
+    DayOfWeek == 6 ~ "Saturday",
+    DayOfWeek == 7 ~ "Sunday"
+  ))
+
+df73$week <- factor(df73$week,levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+
+df73[,c("UniqueCarrier","week","DepDelay")] %>% 
+  na.omit() %>%
+  ggplot(aes(x = week, y = DepDelay, fill = week))+
+  geom_violin() + 
+  facet_wrap(~UniqueCarrier)
+```
+
+
+* Graph8
 ```{r, include=FALSE}
 df91 <- df %>%
   select(c('Distance', 'DepDelay',"ActualElapsedTime","CRSElapsedTime","AirTime","ArrDelay","DepHour","DayofMonth","DayOfWeek")) %>%
