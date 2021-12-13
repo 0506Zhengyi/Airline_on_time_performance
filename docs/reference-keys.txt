@@ -13,3 +13,5 @@ graph7-delay-by-hourday-of-week
 graph8
 interactive-component
 conclusion
+the-airline-performance-by-each-delay-reason-in-2008
+map

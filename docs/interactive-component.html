@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyu Song, Zhengyi Fang" />
 
 
-<meta name="date" content="2021-12-13" />
+<meta name="date" content="2021-12-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,13 +53,6 @@
 
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
-<script src="libs/plotly-binding-4.10.0/plotly.js"></script>
-<script src="libs/typedarray-0.1/typedarray.min.js"></script>
-<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
-<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
-<link href="libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
 
 
 
@@ -95,7 +88,10 @@
 <li class="chapter" data-level="5.7" data-path="results.html"><a href="results.html#graph7-delay-by-hourday-of-week"><i class="fa fa-check"></i><b>5.7</b> Graph7: Delay by hour/day of week</a></li>
 <li class="chapter" data-level="5.8" data-path="results.html"><a href="results.html#graph8"><i class="fa fa-check"></i><b>5.8</b> Graph8</a></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
+<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="interactive-component.html"><a href="interactive-component.html#the-airline-performance-by-each-delay-reason-in-2008"><i class="fa fa-check"></i><b>6.1</b> The Airline Performance by Each Delay Reason In 2008</a></li>
+</ul></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -118,16 +114,11 @@
             <section class="normal" id="section-">
 <div id="interactive-component" class="section level1" number="6">
 <h1><span class="header-section-number">Chapter 6</span> Interactive component</h1>
-&lt;!DOCTYPE html&gt;
+<div id="the-airline-performance-by-each-delay-reason-in-2008" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> The Airline Performance by Each Delay Reason In 2008</h2>
+<p>Nowadays, flight delays is a tricky problem for travelers. Each time when the travelers meet a delay situation, they are curious about the main reason that caused the flight delay. This interactive bar plot below shows the average delay time and the number of delays by each flight delay reason. Please feel free to click the two bottons below to see the results you want!</p>
 <meta charset="utf-8">
 <script src="https://d3js.org/d3.v5.js"></script>
-<h3 class="text-left">
-The Airline Performance by Each Delay Reason In 2008
-</h3>
-<pre><code>      &lt;p&gt;
-        Nowadays, flight delays is a tricky problem for travelers. Each time when the travelers meet a delay situation, they are curious about the main reason that caused the flight delay. This interactive bar plot below shows the average delay time and the number of delays by each flight delay reason. Please feel free to click the two bottons below to see the results you want! 
-        &lt;br&gt;
-      &lt;/p&gt;</code></pre>
 <button onclick="update(data1)">
 Average Delay(mins)
 </button>
@@ -204,6 +195,7 @@ update(data1)
 
 </script>
 
+</div>
 </div>
             </section>
 

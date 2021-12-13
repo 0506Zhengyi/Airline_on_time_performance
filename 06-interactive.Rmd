@@ -1,16 +1,12 @@
 # Interactive component
-<!DOCTYPE html>
+
+## The Airline Performance by Each Delay Reason In 2008
+
+Nowadays, flight delays is a tricky problem for travelers. Each time when the travelers meet a delay situation, they are curious about the main reason that caused the flight delay. This interactive bar plot below shows the average delay time and the number of delays by each flight delay reason. Please feel free to click the two bottons below to see the results you want! 
+         
 <meta charset="utf-8">
 
 <script src="https://d3js.org/d3.v5.js"></script>
-
-<h3 class='text-left'>
-            The Airline Performance by Each Delay Reason In 2008
-          </h3>
-          <p>
-            Nowadays, flight delays is a tricky problem for travelers. Each time when the travelers meet a delay situation, they are curious about the main reason that caused the flight delay. This interactive bar plot below shows the average delay time and the number of delays by each flight delay reason. Please feel free to click the two bottons below to see the results you want! 
-            <br>
-          </p>
 
 <button onclick="update(data1)">Average Delay(mins)</button>
 <button onclick="update(data2)"># of Delay(count*1000)</button>
