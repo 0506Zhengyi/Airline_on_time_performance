@@ -1,6 +1,5 @@
 # Data sources
 
-
 Data sources: [Data Expo 2009 - Airline on-time performance](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/HG7NV7)
 
 The dataset, Data Expo 2009: Airline on-time data, consists of flight arrival, departure, and cancellation details for all commercial flights within the USA from 1987 to 2008. In this project, we will analyze the data of the first 4 months of 2008. The dataset is real and provides complementary information to answer the questions that we are interested in. Analyzing this dataset to discuss flight delay and cancellation-related topics can help travelers choose better travel routes in the future. On the other hand, the dataset includes some null/blanks and different kinds of data types, such as integers and floats, so it is a good practice for us to perform the data cleaning, analysis, and visualization.
