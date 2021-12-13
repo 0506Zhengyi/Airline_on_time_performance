@@ -25,7 +25,7 @@ library(gridExtra)
 df <- read.csv("C:/Users/20961/Desktop/transformed_2008.csv")
 ```
 
-## Graph1: Most common reason for flight cancellation
+## Flight Cancellation Analysis
 
 **A=Carrier Caused, B=Weather, C=National Aviation System, D=Security**
 ```{r, include=FALSE}
@@ -63,7 +63,7 @@ plot11 <- df %>%
   geom_bar(fill = "cornflowerblue")+
   xlab("Reason for Cancellation")+
   ylab("Count")+
-  ggtitle("Number of Cancellation by Reason")+
+  ggtitle("Main Reasons for Flight Cancellation")+
   theme(plot.title = element_text(size = 10))
   #scale_x_discrete(labels=c("Carrier Caused", "Weather","National Aviation System","Security"))
 
@@ -83,7 +83,7 @@ plot13 <- cancel_origin2 %>%
   geom_bar(mapping = aes(x = reorder(Origin_state,-total_cancel), y = total_cancel), stat = "identity", fill = "lightblue")+
   xlab("Origin State")+
   ylab("Count")+
-  ggtitle("Top 10 States Occrued Cancellation Most")+
+  ggtitle("Flight Cancellation over the U.S. States")+
   theme(plot.title = element_text(size = 10))
 
 #ggarrange(ggarrange(plot11, plot13, ncol = 2), plot12, nrow = 2,heights = c(3,7)) 
@@ -92,6 +92,14 @@ plot13 <- cancel_origin2 %>%
 ```{r, fig.height=2}
 grid.arrange(plot11, plot13, ncol=2)
 ```
+
+Flight cancelation is one of the biggest concerns for travelers since it not only affects their original schedule but also increases the costs of the air carriers to accommodate the travelers. If a flight is canceled, the travelers have to take the next available same route flight, which may be the same airline on the next day due to the full occupancy of the same-day upcoming flights. In this way, the travelers’ schedules will be harmfully affected. On the other hand, in order to discharge the responsibilities and keep good customer experiences, the air carriers need to cover the rebooking costs, hotel fees, and other related fees. Therefore, finding the reasons for flight cancellation and looking at its pattern in the U.S. will help the travelers better understand the flight performances.
+
+* Based on the bar plot on the left above, the number of flights caused by the air carrier is the highest. The air carrier's cause of the cancellation was due to circumstances within the airline's control (e.g. maintenance or crew problems, aircraft cleaning, baggage loading, fueling, etc.). Weather condition is another noticeable factor that causes flight cancellations. Extreme weather, significant meteorological conditions (actual or forecasted) that, in the judgment of the carrier, can prevent the operation of a flight such as a tornado, blizzard, or hurricane.
+
+* Based on the bar plot on the right above, large airports or the airports in the main areas(e.g., Illinois, Texas, California, New York, etc.) of the U.S. are most likely to have the flights canceled.  According to both plots above, we may conclude that the air carriers that operate in the airports of those states have significant airline control problems or more extreme weather conditions than other states in the U.S. Since these states have some of the largest airports in the U.S., such as O'Hare International Airport, Dallas Fort Worth International Airport, and Los Angeles International Airport, it is reasonable to believe that the total number of flights is very large in those states.
+
+
 ```{r}
 plot12
 ```
@@ -104,7 +112,6 @@ test <- na.omit(test)
 nrow(test[test$Origin_state == "CA",])
 ```
 
-## Graph2: Cancellation rate vs. number
 ```{r, include=FALSE}
 #filter and transform data
 df2 <- df %>%
@@ -141,12 +148,15 @@ ggplot(df24, aes(fill=fct_rev(CancellationCode), y=n_cancel, x=reorder(UniqueCar
   scale_fill_manual(values=getPalette(5))+
   geom_line(aes(x=reorder(UniqueCarrier,-total_cancel), y = 100000*cancel_rate), size = 1, color="red", group = 1) + 
   scale_y_continuous(sec.axis = sec_axis(~./100000, name = "Cancellation Rate"))+
+  ggtitle("Air Carrier Performance on Flight Cancellation")+
   xlab("Carrier")+
   ylab("Number of Cancellation")+
   labs(fill = "Cancellation Code")
 ```
 
-## Graph3: Number of delay and average delay (in mins)
+Travelers may also consider which air carrier to choose to minimize the probability of flight cancellation when those carriers provide similar services and prices. From the plots above, American Airlines, Envoy Air, and SkyWest Airlines have the most flight cancellations. American Airlines is the airline with the largest passenger capacity, total passenger mileage, and fleet in the world. Therefore, we may conclude that the total number of flights is very large so the total number of flight cancellations can be large too and it is hard to manage a large number of flights. However, extreme weather and National Aviation System (NAS) are big problems for Envoy Air and SkyWest Airlines, where NAS cancellations are attributable to the national aviation system that refer to a broad set of conditions, such as non-extreme weather conditions, airport operations, heavy traffic volume, and air traffic control.
+
+## Flight Delay Analysis
 ```{r, include=FALSE}
 #delay
 delay <- df %>%
@@ -193,6 +203,7 @@ getPalette2 = colorRampPalette(brewer.pal(5, "GnBu"))
 plot31 <- delay_count %>%
   ggplot()+
   geom_bar(mapping = aes(x = reorder(reason,-count), y = count,fill = reason), stat = "identity")+
+  ggtitle("Main Reasons for Flight Delay")+
   xlab("Reason for Delay")+
   ylab("Count")+
   scale_fill_manual(values=getPalette2(5))+
@@ -207,7 +218,7 @@ plot32 <- df33 %>% ggplot()+
   scale_fill_manual(values=getPalette2(5))+
   theme(legend.title = element_blank(),legend.position = "top",
         axis.text.x = element_text(size=6))
-plot32_<- plot32+ theme(legend.position = "None")
+plot32_<- plot32+theme(legend.position = "None")+ggtitle("Main Reasons for Flight Delay")
 
 #boxplot: delay reason vs delay mins
 #explore median, outliers
@@ -240,21 +251,25 @@ grid.arrange(shared_legend,
              arrangeGrob(plot31, plot32_, ncol = 2),nrow = 2, heights = c(1, 10))
 ```
 
+Even though flight delay may not be as influential as flight cancellation, it still bothers millions of travelers everyday. Here, we would like to analyze the main reason of the flight delays and the average delay time for those delays in 2008.
+
+* Based on the bar plot on the left above, delay attributable to the National Aviation System, delay attributable to the late-arriving aircraft, and delay attributable to the carrier caused most of the flight delays.
+
+* Based on the bar plot on the right above, the average delay time of delay attributable to the weather,  delay attributable to the late-arriving aircraft, and delay attributable to the carrier is the highest.
+
+
 ```{r,fig.height=2}
-plot33
+plot33+ggtitle("Distributions of Flight Delay Reasons")
 ```
 
 ```{r,fig.height=2}
 plot34
 ```
 
+Also, as shown in the boxplot and ridgeline plot above, the average delay time distributes most from 10 minutes to 25 minutes.
 
-(draft)
-The most common reason for flight cancellation is carrier caused, and the weather ranked second. There is not too much difference between the first two. Intuitively, we can avoid cancellation by selecting top carriers or flying in nice weather conditions. In addition, the national aviation system also counts for a part of cancellation but it is only a half of the weather. Security ranked last and there are only x flights canceled due to security out of xx flights.
+Therefore, we highly recommend the travelers check the weather condition before traveling, choose reliable airlines that have good management systems, and avoid the flights that always have late previous airlines.
 
-In contrast, the top 3 reasons for flight delay are the national aviation system, late-arriving aircraft, and carrier caused, which is quite different from cancellation. It is less likely to avoid delay in advance since the top two reasons are not predictable and controllable. However, we can avoid delays by choosing carriers to some extent.
-
-## Graph4: Explore carrier that occure delay most
 ```{r, include=FALSE}
 #Top 10 carrier which occur delays most
 
@@ -353,6 +368,7 @@ plot41 <- ggplot(df41, aes(x = reorder(UniqueCarrier,-avg_delay), y = avg_delay,
   scale_y_continuous(sec.axis=sec_axis(~./15,name = "Percentage of Delayed Flights"))+
   scale_fill_manual(values = c("#92c0df","#fcbe75"))+
   theme(legend.position = "None")+
+  ggtitle("Air Carrier Performance on Flight Delay")+
   ylab("Average Delay (mins)")+
   xlab("Carrier")
 
@@ -370,8 +386,14 @@ plot42 <- ggplot(df44, aes(fill=fct_rev(reason), y=num_delay, x=reorder(UniqueCa
 grid.arrange(plot41,plot42,nrow = 2, heights = c(3, 5))
 ```
 
+Travelers may also consider which air carrier to choose to minimize the probability of flight delay when those carriers provide similar services and prices.
 
-## Graph5: Average delay of each state (mins)
+* Based on the first plot above, United Airlines, American Airlines, Eva Air, Envoy Air, Mesa Airlines, and Continental Airlines have the longest average delay time that is above 12.5 minutes. Thus, according to the delay reasons discussed before, we suggest those air carriers improve their airline controls and flight on-time management system. It is noticeable that Hawaiian Airlines and 9 Air have negative average delay time, which implies that their flights are very likely to arrive early than the scheduled time. Thus, these two airlines are good choices for travelers.
+
+* Based on the second plot above, Southwest Airlines, American Airlines, Envoy Air, and United 	Airlines have the largest total number of delay, in which Southwest Airlines has extremely a large amount of flights delayed. NAS and Late Aircraft Arrival are the biggest problems that caused those delays, so airport operations, heavy traffic volume, and air traffic control may be the root causes. It can be easily observed that United Airlines and American Airlines have very long average delay time and a large number of delays.
+
+Besides the price, time, and availability, travelers usually choose the air carriers that have the best service, minimum delay or cancellation probability, and best reputation. According to the [Airline Ranking 2008 published by the Bureau of Transportation Statistics](https://www.bts.gov/airline-rankings-2008),  United Airlines and American Airlines are the largest U.S. air carriers in terms of revenue, the number of passengers, and miles. Even though the performances of United Airlines and American Airlines are not that good based on our observations,  we assume the total number of flights of those two carriers is very large so the total number of flight delays can be large too and it is hard to manage a large number of flights. 
+
 ```{r, include=FALSE}
 usa <- df %>%
   select("DepDelay","Origin_state") %>%
@@ -405,7 +427,13 @@ fig <- fig %>% layout(
 
 fig
 ```
-## Graph6: Depature delay and arrival delay by airport (top10 and bottom10 )
+
+As we can see from the spatial plot above, Illinois and New Jersey rank highest nationwide for departure delays. The main airport in Illinois is O'Hare International Airport, the busiest airport in the U.S., and Newark Liberty Airport is also ranked in the U.S.’s 29 busiest airports for departures. Based on our previous observations that Air Carriers, NAS, and Late Aircraft Arrival are the biggest problems for flight delays. Therefore, the following insights can be obtained:
+
+* O'Hare International Airport and Newark Liberty Airport are unquestionably the busiest airspace, so any one delay really sends those airports into a disadvantage for on-time performance
+
+* Due to the increase in population and airlines,  the airports are operating at capacities larger than they were built for
+
 ```{r, include=FALSE}
 df61 <- df[,c("DepDelay","Origin")] %>%
   na.omit() %>%
@@ -447,6 +475,7 @@ plot61 <- ggplot(org, aes(x = reorder(Origin, -avg_delay), y = avg_delay, fill =
   geom_bar(stat = "identity")+
   scale_fill_manual(values = c("#92c0df","#fcbe75"))+
   theme(legend.position = "None")+
+  ggtitle("Airport Performance on Flight Cancellation")+
   ylab("Average Departure Delay (mins)")+
   xlab("Origin Airport")
 
@@ -464,8 +493,8 @@ plot62 <- ggplot(des, aes(x = reorder(Dest, -avg_delay), y = avg_delay, fill = j
 grid.arrange(plot61,plot62,nrow = 2)
 ```
 
+The two plots above show the top average departure delay of the origin airport and the average arrival delay of the destination airport. An interesting observation is that some airports, including Hilo International Airport,  Lihue Airport, Bert Mooney Airport, Bellingham International Airport, and Tupelo Regional AirportTupelo Regional Airport, have negative average departure delay time and negative average arrival delay time. This implies that those airports have better airline management systems and have airlines always ahead of schedule.
 
-## Graph7: Delay by hour/day of week
 ```{r, include=FALSE}
 df71 <- df %>%
   filter(UniqueCarrier == "WN"|UniqueCarrier == "CO"|UniqueCarrier == "F9"|UniqueCarrier == "AA"|UniqueCarrier == "UA"|UniqueCarrier == "EV"|UniqueCarrier == "MQ"|UniqueCarrier == "XE"|UniqueCarrier == "FL"|UniqueCarrier == "AS") %>%
@@ -531,11 +560,17 @@ ggplot(data = df72 ) +
   }) + coord_equal()+
   scale_fill_distiller(palette = 'Spectral') +
   labs(x = 'Hour of day', y = 'Airline', fill = 'Percentage',
-       title = 'Percentage of delayed flights by hour of the day') +
+       title = 'Distribution of Flight Delay Over a Day') +
   theme(panel.grid.major = element_blank(), axis.ticks = element_blank(),
         plot.caption = element_text(vjust = 7), axis.title.y = element_blank())
 
 ```
+
+If we have choices, what is the best time of the day to start our trip? The heatmap above answers this question. It is obvious that the earlier in the day we fly, the less likely we’ll be stuck with flight delays, and delay times only get worse as the day goes on. The probable reasons are the following：
+
+* The weather conditions at the night are worse. The storms, hurricanes, and heavy snow are more likely to happen at the night
+
+* There are too many flight delays during the daytime, and airline traffic and airport operation problems are getting worse at the end of the day.
 
 ```{r,include=FALSE}
 #test
@@ -553,11 +588,12 @@ ggplot(data = df74) +
     case_when(x == 0 ~ '', x == 8 ~ '8am', x == 16 ~ '4pm', x == 24 ~ '12am')
     }) +
   labs(x = 'Time', y = 'Percentage of delayed flights', color = 'Airline',
-       title = 'Percentage of Delayed Flight by Time of the Week',
+       title = 'Distribution of Flight Delay Over A Week',
        subtitle = 'Top US airlines') +
   theme(plot.caption = element_text(vjust = 7)) +
   guides(fill = guide_legend(title = NULL))
 ```
+
 ```{r, include=FALSE}
 df76 <- df[,c("UniqueCarrier","DepDelay","DayOfWeek")] %>%
   mutate(week = case_when(
@@ -584,8 +620,9 @@ df76[,c("UniqueCarrier","week","DepDelay")] %>%
   ylab("Departure Delay (mins)")
 ```
 
+According to the plots above, the delays spread over 24 hours of a day and 7 days of a week, so there is no noticeable relationship between ‘Time of a day’ and ‘Total number of delays’. Also, there is no noticeable relationship between ‘Day of a week’ and ‘Total departure delay time’. Therefore, there is no seasonality to the delays by airlines.
 
-## Graph8
+## Exploratory Analysis
 ```{r, include=FALSE}
 df91 <- df %>%
   select(c("Distance", "DepDelay","ArrDelay","AirTime","DepHour","DayofMonth","DayOfWeek")) %>%
@@ -594,7 +631,7 @@ split = sample(x = 1:nrow(df91), size = 0.001*nrow(df91))
 small_dist = df91[split,]
 ```
 
-```{r, fig.height=9}
+```{r, fig.height=7.5}
 lowerFn <- function(data, mapping, ...) {
   p <- ggplot(data = data, mapping = mapping) +
     geom_point(color = 'blue', alpha=0.3, size=0.5) +
@@ -618,6 +655,20 @@ g <- g + theme(
   panel.grid.major = element_line(colour = NA),
   panel.grid.minor = element_blank(),
   panel.background = element_rect(fill = "grey95")
-)
+)+
+  ggtitle("Correlation Analysis of Main Variables")
+
 print(g, bottomHeightProportion = 0.5, leftWidthProportion = .5)
 ```
+
+Last but not least, it is worthy to analyze the correlations between the main variables in our dataset. Are there any important insights we can obtain from those variables to help travelers better plan for their future trips? The scatterplot matrix above answers the question and shows:
+
+* There is a positive correlation between
+
+** Departure Delay and Arrival Delay
+
+** Distance of the flight and the Arrival time
+
+We assume that If the coefficient value lies between ± 0.50 and ± 1, then it is said to be a strong correlation. If the value lies between ± 0.30 and ± 0.49, then it is said to be a medium correlation. If the value lies below + . 29, then it is said to be a small correlation. Thus, Arrival Time and Distance has a strong correlation, Departure Delay and Arrival Delay has a strong correlation,  Departure Hour and Departure Delay has a low correlation, Departure Hour and Arrival Delay has a low correlation
+
+* No variable has a normal distribution
