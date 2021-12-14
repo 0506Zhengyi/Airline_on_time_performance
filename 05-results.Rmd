@@ -560,7 +560,7 @@ ggplot(data = df72 ) +
   }) + coord_equal()+
   scale_fill_distiller(palette = 'Spectral') +
   labs(x = 'Hour of day', y = 'Airline', fill = 'Percentage',
-       title = 'Distribution of Flight Delay Over a Day') +
+       title = 'Distribution of Flight Delay Over A Day') +
   theme(panel.grid.major = element_blank(), axis.ticks = element_blank(),
         plot.caption = element_text(vjust = 7), axis.title.y = element_blank())
 

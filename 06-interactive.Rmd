@@ -83,10 +83,12 @@ update(data1)
 
 ## Interactive Map
 
-This map allows users to view the minimum, average, and maximum delay in minutes of each state in the US with a mouse hover the map. The incentive of building this map is to provide more information of delay by state to help travelers better plan their trip in advance. For example, you will fly to attend a major event. You may book early flights if the average delay and maximum delay of departure state are large. The map is colored according to maximum delay (the larger the delay, the darker the color).
+This map allows users to view the minimum, average, and maximum delay in minutes of each state in the US with a mouse hover the map. The incentive of building this map is to provide more information of delay by state to help travelers better plan their trip. For example, you will fly to attend a major event. You may book early flights if the average delay and maximum delay of departure state are large. 
 
-Hover your mouse over the map to view details.
+This map is colored according to maximum delay (the larger the delay, the darker the color). Compared with the map in Chapter5, Illinois and New Jersey rank highest nationwide for average departure delays. The main airport in Illinois is O'Hare International Airport, the busiest airport in the U.S., and Newark Liberty Airport is also ranked in the U.S.’s 29 busiest airports for departures. In contrast, North Carolina and Hawaii ranked the highest for maximum departure delays. Even if they have a relatively low average delay, their extreme values are significantly larger than other states.
 
-Note: Louisiana has 0 delay because the data is missing in the original dataset.
+Here is the **link** to the [interactive map](https://rpubs.com/Zhengyi/847437)
 
-Here is the link to the [interactive map](https://rpubs.com/Zhengyi/847437)
+The **screenshot** of interactive map:
+
+![](D3 map screenshot.png){width=95%}
