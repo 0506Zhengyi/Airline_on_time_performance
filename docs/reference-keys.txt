@@ -8,4 +8,5 @@ flight-delay-analysis
 exploratory-analysis
 interactive-component
 the-airline-performance-by-each-delay-reason-in-2008
+interactive-map
 conclusion

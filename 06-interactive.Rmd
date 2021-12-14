@@ -80,3 +80,9 @@ function update(data) {
 update(data1)
 
 </script>
+
+## Interactive Map
+
+This map allows viewer to view the minimum, average, and maximum delay in minutes with mouse hover the map. With this information, travelers can better plan their trip in advance.
+
+Here is the link to the [interactive map](https://rpubs.com/Zhengyi/847417)
