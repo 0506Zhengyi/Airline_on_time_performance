@@ -83,6 +83,10 @@ update(data1)
 
 ## Interactive Map
 
-This map allows viewer to view the minimum, average, and maximum delay in minutes with mouse hover the map. With this information, travelers can better plan their trip in advance.
+This map allows users to view the minimum, average, and maximum delay in minutes of each state in the US with a mouse hover the map. The incentive of building this map is to provide more information of delay by state to help travelers better plan their trip in advance. For example, you will fly to attend a major event. You may book early flights if the average delay and maximum delay of departure state are large. The map is colored according to maximum delay (the larger the delay, the darker the color).
 
-Here is the link to the [interactive map](https://rpubs.com/Zhengyi/847417)
+Hover your mouse over the map to view details.
+
+Note: Louisiana has 0 delay because the data is missing in the original dataset.
+
+Here is the link to the [interactive map](https://rpubs.com/Zhengyi/847437)

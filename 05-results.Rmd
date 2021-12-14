@@ -669,6 +669,6 @@ Last but not least, it is worthy to analyze the correlations between the main va
 
   * Distance of the flight and the Arrival time
 
-We assume that If the coefficient value lies between ± 0.50 and ± 1, then it is said to be a strong correlation. If the value lies between ± 0.30 and ± 0.49, then it is said to be a medium correlation. If the value lies below + . 29, then it is said to be a small correlation. Thus, Arrival Time and Distance has a strong correlation, Departure Delay and Arrival Delay has a strong correlation,  Departure Hour and Departure Delay has a low correlation, Departure Hour and Arrival Delay has a low correlation
+We assume that If the coefficient value lies between ± 0.50 and ± 1, then it is said to be a strong correlation. If the value lies between ± 0.30 and ± 0.49, then it is said to be a medium correlation. If the value lies below + 0.29, then it is said to be a small correlation. Thus, Arrival Time and Distance has a strong correlation, Departure Delay and Arrival Delay has a strong correlation, Departure Hour and Departure Delay has a low correlation, Departure Hour and Arrival Delay has a low correlation.
 
 * No variable has a normal distribution
