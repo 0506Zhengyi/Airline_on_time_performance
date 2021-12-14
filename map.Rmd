@@ -1,0 +1,100 @@
+# Interactive Map
+
+## Delay (in Minutes) by State
+
+This map provides historical data for the delay (in minutes) of each state, including minimum, average, and maximum delay. The map is colored according to maximum delay, the darker the color, the larger the maximum delay. The incentive for building this map is to allow the viewer to get more information about delays to best suit their needs. Hover your mouse over the map, you can see the delay of each state.
+
+Note: the Louisiana has 0-minute delay due to the missing values in the original dataset.
+
+<meta charset="utf-8">
+<style>
+	.state{
+		fill: none;
+		stroke: #a9a9a9;
+		stroke-width: 1;
+	}
+	.state:hover{
+		fill-opacity:0.5;
+	}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;
+		padding: 20px;             
+		margin: 10px;
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 1px;      
+		border-radius: 2px;           
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		background:rgba(0,0,0,0.9);
+		border:1px solid grey;
+		border-radius:5px;
+		font-size:12px;
+		width:auto;
+		padding:4px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+</style>
+<body>
+<div id="tooltip"></div><!-- div to hold tooltip. -->
+<svg width="960" height="600" id="statesvg"></svg> <!-- svg to hold the map. -->
+<script src="uStates.js"></script> <!-- creates uStates. -->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+	function tooltipHtml(n, d){	/* function to create html content string in tooltip div. */
+		return "<h4>"+n+"</h4><table>"+
+			"<tr><td>Low</td><td>"+(d.low)+"</td></tr>"+
+			"<tr><td>Average</td><td>"+(d.avg)+"</td></tr>"+
+			"<tr><td>High</td><td>"+(d.high)+"</td></tr>"+
+			"</table>";
+	}
+	
+	var var_low = [-61,-27,-31,-54,-92,-30,-65,-46,-23,-30,-37,-30,-55,-24,-48,-23,-62,0,-20,-19,-24,-48,-67,-26,-23,-21,-31,-63,-43,-70,-62,-46,-46,-38,-34,-24,-52,-70,-34,-42,-30,-32,-61,-24,-28,-52,-25,-36,-32,0,-42].reverse()
+	
+	var var_mean = [1.15,6.07,12.2,13.7,12.7,9.74,10.5,12.1,10.3,8.49,8.72,13.8,11.8,14.3,12.1,17.7,12.5,0,10.0,11.5,13.1,10.9,11.9,8.13,0.792,9.03,8.77,9.70,12.2,10.1,8.43,11.5,6.71,10.1,7.81,6.94,8.35,8.94,10.7,13.4,9.75,11.4,20.8,9.31,13.2,11.5,13.3,9.63,10.6,0,10.4].reverse()
+	
+	var var_high = [2457,418,1316,747,889,795,2467,1490,955,623,1014,790,553,491,1521,861,1021,0,699,348,1120,1201,1123,1039,1059,979,1268,1099,1311,1172,889,1249,1215,1355,456,1348,411,469,819,802,648,977,947,1049,1198,960,719,950,1070,0,658].reverse()
+	
+	var sampleData ={};	/* Sample random data. */	
+	["HI", "AK", "FL", "SC", "GA", "AL", "NC", "TN", "RI", "CT", "MA",
+	"ME", "NH", "VT", "NY", "NJ", "PA", "DE", "MD", "WV", "KY", "OH", 
+	"MI", "WY", "MT", "ID", "WA", "DC", "TX", "CA", "AZ", "NV", "UT", 
+	"CO", "NM", "OR", "ND", "SD", "NE", "IA", "MS", "IN", "IL", "MN", 
+	"WI", "MO", "AR", "OK", "KS", "LS", "VA"]
+		.forEach(function(d){ 
+			var low= var_low.pop(),
+				high=var_high.pop();
+			sampleData[d]={low:d3.min([low,high]), high:d3.max([low,high]), 
+					avg:var_mean.pop(), color:d3.interpolate("#f7faff", "#072f6b")(high/1500)}; 
+		});
+	
+	/* draw states on id #statesvg */	
+	uStates.draw("#statesvg", sampleData, tooltipHtml);
+	
+	d3.select(self.frameElement).style("height", "600px"); 
+</script>
+
+</body>
+
+Reference: [US State Map](https://gist.github.com/NPashaP/a74faf20b492ad377312)
